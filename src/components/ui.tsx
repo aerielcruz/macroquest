@@ -1,0 +1,64 @@
+import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { XP_PER_LEVEL, levelFor } from '../scoring'
+
+type Variant = 'primary' | 'secondary' | 'danger' | 'ghost'
+
+const VARIANTS: Record<Variant, string> = {
+  primary: 'bg-lime-500 text-white border-lime-700 hover:bg-lime-400',
+  secondary: 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50',
+  danger: 'bg-rose-500 text-white border-rose-700 hover:bg-rose-400',
+  ghost: 'bg-transparent text-slate-500 border-transparent hover:text-slate-700 shadow-none',
+}
+
+export function Button({
+  variant = 'primary',
+  className = '',
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
+  return (
+    <button
+      {...props}
+      className={`rounded-2xl border-b-4 px-5 py-3 font-extrabold uppercase tracking-wide transition active:translate-y-0.5 active:border-b-2 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:translate-y-0 ${VARIANTS[variant]} ${className}`}
+    />
+  )
+}
+
+export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <div className={`rounded-3xl border-2 border-slate-200 bg-white p-6 ${className}`}>{children}</div>
+}
+
+export function ProgressBar({ value, className = '' }: { value: number; className?: string }) {
+  return (
+    <div className={`h-4 w-full overflow-hidden rounded-full bg-slate-200 ${className}`}>
+      <div
+        className="h-full rounded-full bg-lime-500 transition-all duration-500"
+        style={{ width: `${Math.min(100, Math.max(0, value * 100))}%` }}
+      />
+    </div>
+  )
+}
+
+export function XpBadge({ xp }: { xp: number }) {
+  const level = levelFor(xp)
+  const into = xp % XP_PER_LEVEL
+  return (
+    <div className="flex items-center gap-3">
+      <span className="rounded-xl bg-amber-100 px-3 py-1 text-sm font-extrabold text-amber-700">⭐ {xp} XP</span>
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-extrabold text-sky-700">Lv {level}</span>
+        <div className="h-2 w-20 overflow-hidden rounded-full bg-slate-200">
+          <div className="h-full bg-sky-500 transition-all duration-500" style={{ width: `${into}%` }} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function Screen({ children }: { children: ReactNode }) {
+  return <div className="mx-auto flex min-h-screen w-full max-w-xl flex-col px-4 py-6">{children}</div>
+}
+
+export function Mascot({ mood = 'happy', size = 'text-6xl' }: { mood?: 'happy' | 'think' | 'cheer'; size?: string }) {
+  const face = { happy: '🥑', think: '🤔', cheer: '🎉' }[mood]
+  return <div className={`${size} select-none`} aria-hidden>{face}</div>
+}
