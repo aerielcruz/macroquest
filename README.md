@@ -7,7 +7,7 @@ MVP artefact for the COMP903 proposal *A Gamified Web Application for Teaching C
 Needs Node.js 20 or newer.
 
 ```
-cd web-app
+cd MacroQuest
 npm install
 npm run dev
 ```
