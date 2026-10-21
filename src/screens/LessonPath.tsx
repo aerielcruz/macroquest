@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Button, Card, Mascot, ProgressBar, Screen, XpBadge } from '../components/ui'
 import { GOAL_LABELS } from '../content/lessons'
 import type { Goal, Lesson } from '../types'
@@ -9,12 +10,13 @@ interface Props {
   goal: Goal
   onOpen: (lessonId: string) => void
   onSurvey: () => void
+  account?: ReactNode
 }
 
 // Zig-zag offsets give the path its Duolingo-style winding look.
 const OFFSETS = ['translate-x-0', 'translate-x-12', 'translate-x-16', 'translate-x-12', 'translate-x-0', '-translate-x-12', '-translate-x-16', '-translate-x-12']
 
-export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey }: Props) {
+export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, account }: Props) {
   const nextIndex = lessons.findIndex((l) => !completed.has(l.id))
   const allDone = nextIndex === -1
   const coreCount = lessons.filter((l) => l.track === 'core').length
@@ -23,7 +25,10 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey }: P
     <Screen>
       <header className="sticky top-0 z-10 -mx-4 mb-4 flex items-center justify-between bg-slate-50/90 px-4 py-2 backdrop-blur">
         <span className="font-extrabold text-lime-600">🥑 MacroQuest</span>
-        <XpBadge xp={xp} />
+        <div className="flex items-center gap-3">
+          <XpBadge xp={xp} />
+          {account}
+        </div>
       </header>
 
       <ProgressBar value={completed.size / lessons.length} />

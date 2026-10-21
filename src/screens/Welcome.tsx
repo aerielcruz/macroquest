@@ -1,14 +1,17 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Button, Card, Mascot, Screen } from '../components/ui'
+import { USE_SERVER } from '../api'
 import { EXPERIENCE_OPTIONS } from '../content/survey'
 import type { Experience } from '../types'
 
 interface Props {
   onStart: (experience: Experience) => void
   onIneligible: () => void
+  /** Shown on the first screen so returning users can sign in and resume. */
+  signIn?: ReactNode
 }
 
-export function Welcome({ onStart, onIneligible }: Props) {
+export function Welcome({ onStart, onIneligible, signIn }: Props) {
   const [step, setStep] = useState<'intro' | 'consent' | 'experience'>('intro')
   const [adult, setAdult] = useState(false)
   const [readInfo, setReadInfo] = useState(false)
@@ -27,6 +30,12 @@ export function Welcome({ onStart, onIneligible }: Props) {
           <Button className="w-full max-w-xs" onClick={() => setStep('consent')}>
             Get started
           </Button>
+          {signIn && (
+            <div className="mt-4 space-y-2">
+              <p className="text-sm font-bold text-slate-500">Already started on another device?</p>
+              {signIn}
+            </div>
+          )}
         </div>
       </Screen>
     )
@@ -43,8 +52,13 @@ export function Welcome({ onStart, onIneligible }: Props) {
             complete a set of short lessons (about 10 to 15 minutes), then answer one short survey.
           </p>
           <p>
-            Taking part is voluntary and anonymous. We do not collect your name or email. You can stop at any time by
+            Taking part is voluntary and anonymous. Your survey answers are not linked to your name or email. You can stop at any time by
             closing the page. At the end you will get a short code you can quote if you want your answers withdrawn.
+          </p>
+          <p>
+            Your progress is saved in this browser.
+            {USE_SERVER &&
+              ' You can optionally sign in with Google to save it to an account; your survey answers are stored separately and never linked to your name or email.'}
           </p>
           <p>
             The app teaches flexible, goal-based tracking. It never rewards eating less, and your own food intake is not
