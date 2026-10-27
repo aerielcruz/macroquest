@@ -6,16 +6,14 @@ import type { Experience } from '../types'
 
 interface Props {
   onStart: (experience: Experience) => void
-  onIneligible: () => void
   /** Shown on the first screen so returning users can sign in and resume. */
   signIn?: ReactNode
 }
 
-export function Welcome({ onStart, onIneligible, signIn }: Props) {
+export function Welcome({ onStart, signIn }: Props) {
   const [step, setStep] = useState<'intro' | 'consent' | 'experience'>('intro')
   const [adult, setAdult] = useState(false)
   const [readInfo, setReadInfo] = useState(false)
-  const [noEd, setNoEd] = useState<boolean | null>(null)
   const [experience, setExperience] = useState<Experience | null>(null)
 
   if (step === 'intro') {
@@ -42,7 +40,7 @@ export function Welcome({ onStart, onIneligible, signIn }: Props) {
   }
 
   if (step === 'consent') {
-    const canContinue = adult && readInfo && noEd !== null
+    const canContinue = adult && readInfo
     return (
       <Screen>
         <h1 className="mb-4 text-2xl font-extrabold">About this study</h1>
@@ -54,6 +52,10 @@ export function Welcome({ onStart, onIneligible, signIn }: Props) {
           <p>
             Taking part is voluntary and anonymous. Your survey answers are not linked to your name or email. You can stop at any time by
             closing the page. At the end you will get a short code you can quote if you want your answers withdrawn.
+          </p>
+          <p>
+            If thinking about food or tracking ever feels stressful, please stop. You can talk to your GP, or call or text 1737 any
+            time for free support.
           </p>
           <p>
             Your progress is saved in this browser.
@@ -69,20 +71,13 @@ export function Welcome({ onStart, onIneligible, signIn }: Props) {
         <div className="mt-5 space-y-3">
           <Check checked={readInfo} onChange={setReadInfo}>I have read the information above and agree to take part.</Check>
           <Check checked={adult} onChange={setAdult}>I am 18 years or older.</Check>
-          <Card className="space-y-3 p-4">
-            <p className="font-bold">Do you have a current or past eating disorder?</p>
-            <div className="flex gap-2">
-              <Choice selected={noEd === false} onClick={() => setNoEd(false)}>Yes</Choice>
-              <Choice selected={noEd === true} onClick={() => setNoEd(true)}>No</Choice>
-            </div>
-          </Card>
         </div>
 
         <div className="mt-auto pt-6">
           <Button
             className="w-full"
             disabled={!canContinue}
-            onClick={() => (noEd ? setStep('experience') : onIneligible())}
+            onClick={() => setStep('experience')}
           >
             Continue
           </Button>
@@ -108,28 +103,6 @@ export function Welcome({ onStart, onIneligible, signIn }: Props) {
         <Button className="w-full" disabled={!experience} onClick={() => experience && onStart(experience)}>
           Continue
         </Button>
-      </div>
-    </Screen>
-  )
-}
-
-export function Ineligible() {
-  return (
-    <Screen>
-      <div className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
-        <Mascot size="text-7xl" />
-        <h1 className="text-2xl font-extrabold">Thank you for your honesty</h1>
-        <p className="max-w-sm text-slate-600">
-          To keep everyone safe, this study is not able to include people with a current or past eating disorder. No
-          data has been recorded.
-        </p>
-        <p className="max-w-sm text-slate-600">
-          If you would like support, Eating Disorders Association of New Zealand (EDANZ) is at{' '}
-          <a className="font-bold text-sky-600 underline" href="https://www.ed.org.nz" target="_blank" rel="noreferrer">
-            ed.org.nz
-          </a>
-          , or you can talk to your GP.
-        </p>
       </div>
     </Screen>
   )

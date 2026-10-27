@@ -9,11 +9,11 @@ import { GoalPick } from './screens/GoalPick'
 import { LessonPath } from './screens/LessonPath'
 import { LessonPlayer } from './screens/LessonPlayer'
 import { Survey } from './screens/Survey'
-import { Ineligible, Welcome } from './screens/Welcome'
+import { Welcome } from './screens/Welcome'
 import { clearCurrent, loadAllSessions, loadCurrentId, newId, newParticipantCode, saveSession } from './storage'
 import type { SessionRecord } from './types'
 
-type View = { name: 'welcome' } | { name: 'ineligible' } | { name: 'path' } | { name: 'lesson'; id: string } | { name: 'survey' } | { name: 'done' }
+type View = { name: 'welcome' } | { name: 'path' } | { name: 'lesson'; id: string } | { name: 'survey' } | { name: 'done' }
 
 function resume(): SessionRecord | null {
   const id = loadCurrentId()
@@ -105,7 +105,6 @@ export default function App() {
       return (
         <Welcome
           signIn={!user && googleClientId ? <GoogleButton clientId={googleClientId} onCredential={signIn} /> : undefined}
-          onIneligible={() => setView({ name: 'ineligible' })}
           onStart={(experience) => {
             const now = new Date().toISOString()
             setSession({
@@ -122,8 +121,6 @@ export default function App() {
           }}
         />
       )
-    case 'ineligible':
-      return <Ineligible />
     case 'path':
       if (!session) return null
       if (!session.goal) return <GoalPick onPick={(goal) => setSession({ ...session, goal })} />

@@ -49,7 +49,7 @@ export function LessonPlayer({ lesson, onExit, onComplete }: Props) {
   const total = lesson.cards.length + lesson.questions.length
   const progress = (Math.min(cardIndex, lesson.cards.length) + answered.size) / total
 
-  function grade(correct: boolean, detail: string, extra?: React.ReactNode) {
+  function grade(correct: boolean, detail: string, extra?: React.ReactNode, title?: string) {
     const first = !attemptedOnce.current.has(qIndex)
     attemptedOnce.current.add(qIndex)
     setAttempts((a) => a + 1)
@@ -59,7 +59,7 @@ export function LessonPlayer({ lesson, onExit, onComplete }: Props) {
     } else {
       setCombo(0)
     }
-    setFeedback({ correct, title: correct ? cheer() : nudge(), detail, extra, retry: !correct && question.kind !== 'log' })
+    setFeedback({ correct, title: title ?? (correct ? cheer() : nudge()), detail, extra, retry: !correct && question.kind !== 'log' })
   }
 
   function next() {
@@ -182,7 +182,7 @@ function TeachCard({ card, step, of, onNext }: { card: { title: string; body: st
 interface QuestionViewProps {
   question: Question
   locked: boolean
-  onGrade: (correct: boolean, detail: string, extra?: React.ReactNode) => void
+  onGrade: (correct: boolean, detail: string, extra?: React.ReactNode, title?: string) => void
   onLog: (r: Omit<LogTaskResult, 'lessonId'>) => void
 }
 
@@ -259,8 +259,15 @@ function NumericView({ question, locked, onGrade }: QuestionViewProps & { questi
   )
 
   function submit() {
-    const correct = Math.abs(n - question.answer) <= question.tolerance
-    onGrade(correct, correct ? question.explain : `Answer: ${question.answer.toLocaleString()} ${question.unit}. ${question.explain}`)
+    const diff = Math.abs(n - question.answer)
+    const correct = diff <= question.tolerance
+    const exact = diff === 0
+    const answer = `${question.answer.toLocaleString()} ${question.unit}`
+    if (correct && !exact) {
+      onGrade(true, `Exact answer: ${answer}. ${question.explain}`, undefined, 'Close enough!')
+    } else {
+      onGrade(correct, correct ? question.explain : `Answer: ${answer}. ${question.explain}`)
+    }
   }
 }
 

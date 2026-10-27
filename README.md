@@ -52,7 +52,7 @@ In browser-only mode, `npm run build` makes a static site in `dist/` that you ca
 
 ## Session flow
 
-1. Information sheet, consent, 18+ check, eating-disorder screening (exits politely if yes).
+1. Information sheet, consent, 18+ check, and a wellbeing note (stop any time, GP or 1737 for support).
 2. Baseline tracking experience question.
 3. Goal pick: bulking, cutting or maintaining.
 4. Lesson path: 5 core lessons (energy balance, labels, weighing, portions, practice logging), then 2 lessons for the chosen goal.
