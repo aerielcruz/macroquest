@@ -8,6 +8,7 @@
     "dev:api": "tsx watch server/index.ts",
     "build": "tsc -b && vite build",
     "start": "tsx server/index.ts",
+    "seed": "tsx server/seed.ts",
     "lint": "eslint .",
     "preview": "vite preview",
     "dev:full": "concurrently -n api,web -c blue,green \"tsx watch server/index.ts\" \"vite\""
