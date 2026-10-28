@@ -12,6 +12,7 @@ import {
   nudge,
   truthFor,
 } from '../scoring'
+import { play, setMuted, useMuted } from '../sound'
 import type { LessonResult, Lesson, LogQuestion, LogTaskResult, McqQuestion, NumericQuestion, Question } from '../types'
 import { Choice } from './Welcome'
 
@@ -57,8 +58,11 @@ export function LessonPlayer({ lesson, onExit, onComplete }: Props) {
     if (correct) {
       if (first) setFirstTry((f) => f + 1)
       setCombo((c) => c + 1)
+      // A custom title means a within-tolerance numeric answer ("Close enough!").
+      play(title ? 'close' : combo + 1 >= 3 ? 'combo' : 'correct')
     } else {
       setCombo(0)
+      play('wrong')
     }
     setFeedback({ correct, title: title ?? (correct ? cheer() : nudge()), detail, extra, retry: !correct && question.kind !== 'log' })
   }
@@ -72,7 +76,10 @@ export function LessonPlayer({ lesson, onExit, onComplete }: Props) {
     setFeedback(null)
     setTurn((t) => t + 1)
     setQueue(newQueue)
-    if (newQueue.length === 0) setFinished(true)
+    if (newQueue.length === 0) {
+      setFinished(true)
+      play('complete')
+    }
   }
 
   const xpEarned = firstTry * XP_PER_CORRECT + XP_LESSON_BONUS
@@ -123,6 +130,7 @@ export function LessonPlayer({ lesson, onExit, onComplete }: Props) {
         </button>
         <ProgressBar value={progress} />
         {combo >= 2 && <span className="whitespace-nowrap text-sm font-extrabold text-orange-500">🔥 {combo} in a row</span>}
+        <MuteButton />
       </div>
 
       {inCards ? (
@@ -207,7 +215,16 @@ function McqView({ question, locked, onGrade }: QuestionViewProps & { question: 
       <h2 className="mb-5 text-xl font-extrabold">{question.prompt}</h2>
       <div className="space-y-3">
         {question.options.map((o, i) => (
-          <Choice key={i} block selected={choice === i} onClick={() => !locked && setChoice(i)}>
+          <Choice
+            key={i}
+            block
+            selected={choice === i}
+            onClick={() => {
+              if (locked) return
+              play('tap')
+              setChoice(i)
+            }}
+          >
             {o}
           </Choice>
         ))}
@@ -321,7 +338,11 @@ function LogView({ question, locked, onGrade, onLog }: QuestionViewProps & { que
                     key={id}
                     block
                     selected={foods[i] === id}
-                    onClick={() => !locked && setFoods((fs) => fs.map((x, j) => (j === i ? id : x)))}
+                    onClick={() => {
+                      if (locked) return
+                      play('tap')
+                      setFoods((fs) => fs.map((x, j) => (j === i ? id : x)))
+                    }}
                   >
                     <span className="block">{f.name}</span>
                     <span className="text-xs font-semibold text-slate-500">
@@ -392,5 +413,23 @@ function FeedbackBar({ feedback, onNext }: { feedback: Feedback; onNext: () => v
         </Button>
       </div>
     </div>
+  )
+}
+
+function MuteButton() {
+  const muted = useMuted()
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        setMuted(!muted)
+        if (muted) play('tap')
+      }}
+      className="text-xl text-slate-400 hover:text-slate-600"
+      aria-label={muted ? 'Turn sound on' : 'Turn sound off'}
+      title={muted ? 'Turn sound on' : 'Turn sound off'}
+    >
+      {muted ? '🔇' : '🔊'}
+    </button>
   )
 }
