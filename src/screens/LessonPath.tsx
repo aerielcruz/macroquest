@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Button, Card, ConfirmDialog, Mascot, ProgressBar, Screen, TextSizeButton, XpBadge } from '../components/ui'
 import { GOAL_LABELS } from '../content/lessons'
+import { play } from '../sound'
 import type { Goal, Lesson } from '../types'
 
 interface Props {
@@ -64,7 +65,10 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
                 <button
                   type="button"
                   disabled={locked}
-                  onClick={() => onOpen(lesson.id)}
+                  onClick={() => {
+                    play('start')
+                    onOpen(lesson.id)
+                  }}
                   aria-label={lesson.title}
                   className={`flex h-20 w-20 items-center justify-center rounded-full border-b-8 text-3xl transition active:translate-y-1 active:border-b-4 ${
                     done

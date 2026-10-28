@@ -5,7 +5,7 @@ import { useSyncExternalStore } from 'react'
 // audio can play. Phones that support it also get a short vibration. The mute
 // setting covers both and is remembered in this browser.
 
-export type Sound = 'tap' | 'correct' | 'close' | 'combo' | 'wrong' | 'complete'
+export type Sound = 'tap' | 'start' | 'next' | 'correct' | 'close' | 'combo' | 'wrong' | 'complete'
 
 const MUTE_KEY = 'macroquest.muted'
 
@@ -54,6 +54,14 @@ const E6 = 1318.5
 
 const SOUNDS: Record<Sound, (ac: AudioContext) => void> = {
   tap: (ac) => note(ac, 900, 0, 0.05, { type: 'triangle', volume: 0.08 }),
+  // Rising whoosh into a two-note sparkle as a lesson opens.
+  start: (ac) => {
+    note(ac, 300, 0, 0.22, { volume: 0.12, slideTo: 900 })
+    note(ac, G5, 0.16, 0.12, { type: 'triangle', volume: 0.12 })
+    note(ac, C6, 0.24, 0.25, { type: 'triangle', volume: 0.12 })
+  },
+  // Soft upward pop for Next and Continue.
+  next: (ac) => note(ac, 520, 0, 0.08, { volume: 0.12, slideTo: 820 }),
   correct: (ac) => {
     note(ac, E5, 0, 0.12, { type: 'triangle' })
     note(ac, A5, 0.09, 0.22, { type: 'triangle' })

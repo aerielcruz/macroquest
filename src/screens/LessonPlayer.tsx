@@ -86,6 +86,8 @@ export function LessonPlayer({ lesson, replay = false, onExit, onComplete }: Pro
     if (newQueue.length === 0) {
       setFinished(true)
       play('complete')
+    } else {
+      play('next')
     }
   }
 
@@ -169,8 +171,18 @@ export function LessonPlayer({ lesson, replay = false, onExit, onComplete }: Pro
           card={lesson.cards[cardIndex]}
           step={cardIndex + 1}
           of={lesson.cards.length}
-          onNext={() => setCardIndex((i) => i + 1)}
-          onSkip={replay ? () => setCardIndex(lesson.cards.length) : undefined}
+          onNext={() => {
+            play('next')
+            setCardIndex((i) => i + 1)
+          }}
+          onSkip={
+            replay
+              ? () => {
+                  play('next')
+                  setCardIndex(lesson.cards.length)
+                }
+              : undefined
+          }
         />
       ) : (
         <QuestionView
