@@ -12,14 +12,17 @@ export const CORE_LESSONS: Lesson[] = [
     cards: [
       {
         title: 'Calories are energy',
+        image: 'energy-balance',
         body: 'Food energy is measured in kilocalories (kcal). Eat more than you burn over time and you gain weight (a surplus). Eat less and you lose weight (a deficit). Eat about the same and you maintain.',
       },
       {
         title: 'Macros carry the calories',
+        image: 'macro-kcal',
         body: 'Protein has 4 kcal per gram, carbohydrate has 4 kcal per gram, and fat has 9 kcal per gram. If you know the grams, you can work out the calories.',
       },
       {
         title: 'Think in weeks, not meals',
+        image: 'week-trend',
         body: 'Your body balances energy over days and weeks. One day above or below your target is normal and is not a failure. The trend is what counts.',
       },
     ],
@@ -35,6 +38,7 @@ export const CORE_LESSONS: Lesson[] = [
       {
         kind: 'numeric',
         id: 'eb-2',
+        image: 'snack-label',
         prompt: 'A snack has 10 g protein, 20 g carbs and 5 g fat. About how many calories is it?',
         unit: 'kcal',
         answer: 165,
@@ -44,6 +48,7 @@ export const CORE_LESSONS: Lesson[] = [
       {
         kind: 'mcq',
         id: 'eb-3',
+        image: 'surplus-trend',
         prompt: 'If you keep eating about 300 kcal more than you burn each day, what will most likely happen over a few weeks?',
         options: ['You will gain weight', 'You will lose weight', 'Nothing will change'],
         correct: 0,
@@ -71,14 +76,17 @@ export const CORE_LESSONS: Lesson[] = [
     cards: [
       {
         title: 'Serving size first',
+        image: 'label-serving',
         body: 'Every number on a label is for a stated amount. Check the serving size before anything else, because your portion is often bigger or smaller.',
       },
       {
         title: 'Per serving vs per 100 g',
+        image: 'label-columns',
         body: 'Most labels show values per serving and per 100 g. The per 100 g column makes maths easy: divide by 100, then multiply by the grams you ate.',
       },
       {
         title: 'kJ and kcal',
+        image: 'kj-kcal',
         body: 'Labels in New Zealand and Australia often show energy in kilojoules (kJ). 1 kcal is about 4.2 kJ, so divide kJ by 4.2 to get kcal.',
       },
     ],
@@ -94,6 +102,7 @@ export const CORE_LESSONS: Lesson[] = [
       {
         kind: 'numeric',
         id: 'rl-2',
+        image: 'cereal-pour',
         prompt: 'A cereal label says 1 serving = 30 g = 120 kcal. You pour 75 g. How many calories is that?',
         unit: 'kcal',
         answer: 300,
@@ -103,6 +112,7 @@ export const CORE_LESSONS: Lesson[] = [
       {
         kind: 'numeric',
         id: 'rl-3',
+        image: 'label-kj',
         prompt: 'A label shows 840 kJ per serving. About how many kcal is that?',
         unit: 'kcal',
         answer: 200,
@@ -112,6 +122,7 @@ export const CORE_LESSONS: Lesson[] = [
       {
         kind: 'numeric',
         id: 'rl-4',
+        image: 'yoghurt-pot',
         prompt: 'A yoghurt has 5 g protein per 100 g. You eat a 170 g pot. How much protein did you get?',
         unit: 'g',
         answer: 8.5,
@@ -128,14 +139,17 @@ export const CORE_LESSONS: Lesson[] = [
     cards: [
       {
         title: 'Use the tare button',
+        image: 'scale-tare',
         body: 'Put your bowl on the scale, press tare to reset it to zero, then add your food. The scale shows only the food.',
       },
       {
         title: 'Raw and cooked weigh differently',
+        image: 'raw-cooked',
         body: 'Rice and pasta soak up water and get heavier when cooked. Meat loses water and gets lighter. The calories stay the same, only the weight changes. Always pick the database entry that matches how you weighed it.',
       },
       {
         title: 'Weigh the sneaky stuff',
+        image: 'oil-spoon',
         body: 'Oils, butter and sauces are small but calorie-dense. One tablespoon of oil is about 14 g and over 120 kcal.',
       },
     ],
@@ -143,6 +157,7 @@ export const CORE_LESSONS: Lesson[] = [
       {
         kind: 'mcq',
         id: 'wf-1',
+        image: 'rice-cooked',
         prompt: 'You weighed your rice after cooking it. Which entry should you log?',
         options: ['White rice, raw (dry)', 'White rice, cooked', 'Either one, they are the same'],
         correct: 1,
@@ -159,6 +174,7 @@ export const CORE_LESSONS: Lesson[] = [
       {
         kind: 'mcq',
         id: 'wf-3',
+        image: 'chicken-cooking',
         prompt: '100 g of raw chicken becomes about 75 g after cooking. What happens to its calories?',
         options: ['They drop by a quarter', 'They stay about the same', 'They go up'],
         correct: 1,
@@ -167,6 +183,7 @@ export const CORE_LESSONS: Lesson[] = [
       {
         kind: 'numeric',
         id: 'wf-4',
+        image: 'oil-maths',
         prompt: 'Olive oil has 884 kcal per 100 g. How many calories are in 14 g (one tablespoon)?',
         unit: 'kcal',
         answer: 124,
@@ -183,14 +200,17 @@ export const CORE_LESSONS: Lesson[] = [
     cards: [
       {
         title: 'When you cannot weigh it',
+        image: 'eating-out',
         body: 'Eating out or at a friend’s place? Your hand is a handy measuring tool that is always with you.',
       },
       {
         title: 'The hand guide',
+        image: 'hand-guide',
         body: 'A palm is roughly one portion of protein. A cupped hand is roughly one portion of carbs. A fist is roughly one portion of vegetables. A thumb is roughly one portion of fats like oil or butter.',
       },
       {
         title: 'Close enough is good enough',
+        image: 'close-enough',
         body: 'Restaurant food usually has more oil than home cooking, so round fats up a little. A sensible estimate beats skipping the log.',
       },
     ],
@@ -206,6 +226,7 @@ export const CORE_LESSONS: Lesson[] = [
       {
         kind: 'mcq',
         id: 'pe-2',
+        image: 'eating-out',
         prompt: 'You are at a restaurant and cannot weigh your meal. What should you do?',
         options: [
           'Skip logging it',
@@ -218,6 +239,7 @@ export const CORE_LESSONS: Lesson[] = [
       {
         kind: 'mcq',
         id: 'pe-3',
+        image: 'takeaway-vs-home',
         prompt: 'A takeaway stir-fry probably contains more of which macro than the same dish cooked at home?',
         options: ['Fat, from cooking oil', 'Protein', 'Fibre'],
         correct: 0,
@@ -233,10 +255,12 @@ export const CORE_LESSONS: Lesson[] = [
     cards: [
       {
         title: 'Your turn',
+        image: 'log-app',
         body: 'Now you will log two sample meals. For each food, choose the database entry that matches how it was weighed, then type in the grams.',
       },
       {
         title: 'Watch for look-alikes',
+        image: 'look-alikes',
         body: 'Databases are full of entries that look similar: raw vs cooked, whole vs skim. Picking the right one matters as much as the weight.',
       },
     ],
@@ -244,6 +268,7 @@ export const CORE_LESSONS: Lesson[] = [
       {
         kind: 'log',
         id: 'log-lunch',
+        image: 'lunch-plate',
         prompt: 'Log this lunch.',
         items: [
           { description: '150 g chicken breast, weighed after cooking', foodId: 'chicken_cooked', grams: 150, choices: ['chicken_raw', 'chicken_cooked'] },
@@ -256,6 +281,7 @@ export const CORE_LESSONS: Lesson[] = [
       {
         kind: 'log',
         id: 'log-breakfast',
+        image: 'breakfast-bowl',
         prompt: 'Log this breakfast.',
         items: [
           { description: '40 g rolled oats, weighed dry before cooking', foodId: 'oats_dry', grams: 40, choices: ['oats_cooked', 'oats_dry'] },
@@ -279,14 +305,17 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
       cards: [
         {
           title: 'A modest deficit',
+          image: 'deficit',
           body: 'Start from your maintenance calories and take away roughly 300 to 500 kcal. Aim to lose about 0.5 to 1% of your bodyweight per week.',
         },
         {
           title: 'Slower keeps more muscle',
+          image: 'slow-cut',
           body: 'Losing weight slowly is easier to stick to and helps you hold on to muscle. Faster is not better.',
         },
         {
           title: 'Look after yourself',
+          image: 'self-care',
           body: 'A target is a guide, not a test. If tracking ever starts to feel stressful or obsessive, take a break and talk to a health professional.',
         },
       ],
@@ -294,6 +323,7 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
         {
           kind: 'numeric',
           id: 'ct-1',
+          image: 'cut-calc',
           prompt: 'Your maintenance is 2,500 kcal and you choose a 400 kcal deficit. What is your daily target?',
           unit: 'kcal',
           answer: 2100,
@@ -311,6 +341,7 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
         {
           kind: 'mcq',
           id: 'ct-3',
+          image: 'salty-dinner',
           prompt: 'The scale is 0.3 kg up the morning after a salty dinner. What does it most likely mean?',
           options: ['You gained fat', 'Normal water fluctuation, so watch the weekly average', 'You should cut calories further'],
           correct: 1,
@@ -326,10 +357,12 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
       cards: [
         {
           title: 'Protein protects muscle',
+          image: 'protein-cut',
           body: 'On a cut, aim for about 1.8 to 2.7 g of protein per kg of bodyweight. It helps you keep muscle while in a deficit and keeps you fuller.',
         },
         {
           title: 'Fat a bit lower, carbs for training',
+          image: 'cut-split',
           body: 'Keep fat moderate, around 15 to 30% of calories. The calories left over go to carbohydrates, which fuel your training.',
         },
       ],
@@ -346,6 +379,7 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
         {
           kind: 'numeric',
           id: 'cm-2',
+          image: 'cut-donut',
           prompt: 'Your target is 2,000 kcal with 150 g protein and 60 g fat. How many grams of carbs are left?',
           unit: 'g',
           answer: 215,
@@ -372,10 +406,12 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
       cards: [
         {
           title: 'A small surplus',
+          image: 'surplus',
           body: 'Add a small amount on top of maintenance, often around 200 to 300 kcal a day. Aim to gain about 0.25 to 0.5% of your bodyweight per week.',
         },
         {
           title: 'More is not faster muscle',
+          image: 'slow-bulk',
           body: 'Muscle grows slowly. A big surplus mostly adds extra fat, which you would have to lose later.',
         },
       ],
@@ -383,6 +419,7 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
         {
           kind: 'numeric',
           id: 'bt-1',
+          image: 'bulk-calc',
           prompt: 'Your maintenance is 2,600 kcal and you add a 250 kcal surplus. What is your daily target?',
           unit: 'kcal',
           answer: 2850,
@@ -400,6 +437,7 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
         {
           kind: 'mcq',
           id: 'bt-3',
+          image: 'fast-gain',
           prompt: 'You have been gaining 1 kg every week for a month. What should you change?',
           options: ['Nothing, faster is better', 'Reduce the surplus a little', 'Stop eating carbs'],
           correct: 1,
@@ -415,10 +453,12 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
       cards: [
         {
           title: 'Enough protein',
+          image: 'protein-bulk',
           body: 'Around 1.6 to 2.2 g of protein per kg of bodyweight is plenty for building muscle in a surplus.',
         },
         {
           title: 'Carbs fuel the work',
+          image: 'carbs-fuel',
           body: 'Carbohydrates make up most of the extra calories and power your training. Keep fat moderate and fill the rest with carbs.',
         },
       ],
@@ -435,6 +475,7 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
         {
           kind: 'numeric',
           id: 'bm-2',
+          image: 'bulk-donut',
           prompt: 'Your target is 3,000 kcal with 160 g protein and 80 g fat. How many grams of carbs are left?',
           unit: 'g',
           answer: 410,
@@ -461,14 +502,17 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
       cards: [
         {
           title: 'What maintenance means',
+          image: 'maintenance',
           body: 'Maintenance is the calorie intake where your weight stays about the same. Online calculators give a starting guess, and your own data confirms it.',
         },
         {
           title: 'Check it with real data',
+          image: 'two-weeks',
           body: 'Track your intake for two weeks and look at your weekly average weight. Each 1 kg of change is roughly 7,700 kcal, so you can adjust your estimate.',
         },
         {
           title: 'Daily weight jumps around',
+          image: 'daily-wobble',
           body: 'Body weight can swing by 1 to 2 kg from day to day because of water, salt and food in your gut. Use weekly averages.',
         },
       ],
@@ -488,6 +532,7 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
         {
           kind: 'numeric',
           id: 'mf-2',
+          image: 'maintenance-maths',
           prompt: 'You ate 2,300 kcal a day for two weeks and lost 0.25 kg per week. Using 7,700 kcal per kg, roughly what is your maintenance?',
           unit: 'kcal',
           answer: 2575,
@@ -497,6 +542,7 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
         {
           kind: 'mcq',
           id: 'mf-3',
+          image: 'fri-to-mon',
           prompt: 'You are 0.8 kg heavier on Monday than on Friday. What is the most likely reason?',
           options: ['Normal water and food fluctuation', 'You gained 0.8 kg of fat', 'Your maintenance has changed'],
           correct: 0,
@@ -512,10 +558,12 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
       cards: [
         {
           title: 'Aim for a range',
+          image: 'range-band',
           body: 'Treat your target as a range of about 100 to 200 kcal either side. Some days are higher, some lower, and the average is what matters.',
         },
         {
           title: 'Protein first, then preference',
+          image: 'protein-first',
           body: 'Get enough protein, then split the rest between carbs and fat however suits your food preferences and training.',
         },
       ],
@@ -523,6 +571,7 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
         {
           kind: 'numeric',
           id: 'mx-1',
+          image: 'week-intake',
           prompt: 'Your intake this week was 2,300, 2,500, 2,400, 2,600, 2,200, 2,700 and 2,100 kcal. What was your daily average?',
           unit: 'kcal',
           answer: 2400,
@@ -532,6 +581,7 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
         {
           kind: 'mcq',
           id: 'mx-2',
+          image: 'week-vs-target',
           prompt: 'Your maintenance is 2,400 kcal and the week above averaged 2,400. How did you do?',
           options: ['Right on track', 'Off track because some days were over', 'Off track because some days were under'],
           correct: 0,
@@ -540,6 +590,7 @@ export const GOAL_LESSONS: Record<Goal, Lesson[]> = {
         {
           kind: 'mcq',
           id: 'mx-3',
+          image: 'dinner-party',
           prompt: 'You are going to a friend’s dinner and will not know the calories. What is the best plan?',
           options: ['Estimate, enjoy it and carry on as normal', 'Do not go', 'Eat nothing all day beforehand'],
           correct: 0,

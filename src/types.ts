@@ -1,3 +1,5 @@
+import type { IllustrationId } from './content/illustrations'
+
 export type Goal = 'bulk' | 'cut' | 'maintain'
 export type Track = 'core' | Goal
 
@@ -7,6 +9,8 @@ export interface McqQuestion {
   kind: 'mcq'
   id: string
   prompt: string
+  /** Optional picture shown above the prompt. */
+  image?: IllustrationId
   options: string[]
   correct: number
   explain: string
@@ -16,6 +20,8 @@ export interface NumericQuestion {
   kind: 'numeric'
   id: string
   prompt: string
+  /** Optional picture shown above the prompt. */
+  image?: IllustrationId
   unit: string
   answer: number
   /** Accepted if within this many units of the answer. */
@@ -47,6 +53,8 @@ export interface LogQuestion {
   kind: 'log'
   id: string
   prompt: string
+  /** Optional picture shown above the prompt. */
+  image?: IllustrationId
   items: MealItem[]
   explain: string
 }
@@ -59,7 +67,7 @@ export interface Lesson {
   title: string
   emoji: string
   /** Short teaching cards shown before the questions. */
-  cards: { title: string; body: string }[]
+  cards: { title: string; body: string; image?: IllustrationId }[]
   questions: Question[]
 }
 

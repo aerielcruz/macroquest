@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { Button, Card, Mascot, ProgressBar, Screen } from '../components/ui'
 import { FOODS } from '../content/foods'
+import { Illustration } from '../content/illustrations'
 import {
   LOG_PASS_PCT,
   XP_LESSON_BONUS,
@@ -157,7 +158,7 @@ function Stat({ label, value, tone }: { label: string; value: string; tone: 'amb
   )
 }
 
-function TeachCard({ card, step, of, onNext }: { card: { title: string; body: string }; step: number; of: number; onNext: () => void }) {
+function TeachCard({ card, step, of, onNext }: { card: Lesson['cards'][number]; step: number; of: number; onNext: () => void }) {
   return (
     <>
       <div className="flex items-end gap-3">
@@ -167,6 +168,7 @@ function TeachCard({ card, step, of, onNext }: { card: { title: string; body: st
         </span>
       </div>
       <Card className="mt-3">
+        {card.image && <Illustration id={card.image} className="mb-4" />}
         <h2 className="mb-2 text-xl font-extrabold">{card.title}</h2>
         <p className="text-lg leading-relaxed text-slate-600">{card.body}</p>
       </Card>
@@ -201,6 +203,7 @@ function McqView({ question, locked, onGrade }: QuestionViewProps & { question: 
   const [choice, setChoice] = useState<number | null>(null)
   return (
     <>
+      {question.image && <Illustration id={question.image} className="mb-4" />}
       <h2 className="mb-5 text-xl font-extrabold">{question.prompt}</h2>
       <div className="space-y-3">
         {question.options.map((o, i) => (
@@ -234,6 +237,7 @@ function NumericView({ question, locked, onGrade }: QuestionViewProps & { questi
   const n = parseFloat(value.replace(/,/g, ''))
   return (
     <>
+      {question.image && <Illustration id={question.image} className="mb-4" />}
       <h2 className="mb-5 text-xl font-extrabold">{question.prompt}</h2>
       <div className="flex items-center gap-3">
         <input
@@ -302,6 +306,7 @@ function LogView({ question, locked, onGrade, onLog }: QuestionViewProps & { que
 
   return (
     <>
+      {question.image && <Illustration id={question.image} className="mb-4" />}
       <h2 className="mb-1 text-xl font-extrabold">{question.prompt}</h2>
       <p className="mb-4 text-slate-500">Pick the matching entry and enter the weight in grams.</p>
       <div className="space-y-4">
