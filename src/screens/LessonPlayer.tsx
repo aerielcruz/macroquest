@@ -366,6 +366,15 @@ function McqView({ question, locked, onGrade }: QuestionViewProps & { question: 
 function NumericView({ question, locked, onGrade }: QuestionViewProps & { question: NumericQuestion }) {
   const [value, setValue] = useState('')
   const n = parseFloat(value.replace(/,/g, ''))
+
+  // The input handles its own Enter; this covers Enter after clicking elsewhere on the page.
+  useHotkeys((key) => {
+    if (key === 'Enter' && !locked && !Number.isNaN(n)) {
+      submit()
+      return true
+    }
+  })
+
   return (
     <>
       {question.image && <Illustration id={question.image} className="mb-4" />}
@@ -414,6 +423,13 @@ function LogView({ question, locked, onGrade, onLog }: QuestionViewProps & { que
   const entries = question.items.map((_, i) => ({ foodId: foods[i] ?? '', grams: parseFloat(grams[i]) || 0 }))
   const logged = useMemo(() => macrosFor(entries), [entries])
   const complete = foods.every(Boolean) && grams.every((g) => parseFloat(g) > 0)
+
+  useHotkeys((key) => {
+    if (key === 'Enter' && !locked && complete) {
+      submit()
+      return true
+    }
+  })
 
   function submit() {
     const truth = truthFor(question.items)
@@ -473,6 +489,7 @@ function LogView({ question, locked, onGrade, onLog }: QuestionViewProps & { que
                 disabled={locked}
                 value={grams[i]}
                 onChange={(e) => setGrams((gs) => gs.map((x, j) => (j === i ? e.target.value : x)))}
+                onKeyDown={(e) => e.key === 'Enter' && complete && !locked && submit()}
                 className="w-28 rounded-xl border-2 border-slate-300 px-3 py-2 font-bold outline-none focus:border-sky-400"
                 placeholder="0"
               />
@@ -492,6 +509,7 @@ function LogView({ question, locked, onGrade, onLog }: QuestionViewProps & { que
           <Button className="w-full" disabled={!complete} onClick={submit}>
             Check my log
           </Button>
+          <KeyHint>Enter to check once every food has an entry and a weight</KeyHint>
         </div>
       )}
       {locked && <div className="pb-48" />}
