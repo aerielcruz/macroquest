@@ -44,11 +44,11 @@ export function XpBadge({ xp }: { xp: number }) {
   const level = levelFor(xp)
   const into = xp % XP_PER_LEVEL
   return (
-    <div className="flex items-center gap-3">
-      <span className="rounded-xl bg-amber-100 px-3 py-1 text-sm font-extrabold text-amber-700">⭐ {xp} XP</span>
+    <div className="flex items-center gap-2 sm:gap-3">
+      <span className="whitespace-nowrap rounded-xl bg-amber-100 px-3 py-1 text-sm font-extrabold text-amber-700">⭐ {xp} XP</span>
       <div className="flex items-center gap-2">
-        <span className="text-sm font-extrabold text-sky-700">Lv {level}</span>
-        <div className="h-2 w-20 overflow-hidden rounded-full bg-slate-200">
+        <span className="whitespace-nowrap text-sm font-extrabold text-sky-700">Lv {level}</span>
+        <div className="h-2 w-12 overflow-hidden rounded-full bg-slate-200 sm:w-20">
           <div className="h-full bg-sky-500 transition-all duration-500" style={{ width: `${into}%` }} />
         </div>
       </div>

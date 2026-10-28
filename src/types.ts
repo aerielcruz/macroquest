@@ -124,4 +124,6 @@ export interface SessionRecord {
   survey?: SurveyResponse
   /** Chose "Finish early" after the core lessons instead of completing every lesson. */
   endedEarly?: boolean
+  /** Used by a researcher in preview mode, not a real participant. */
+  preview?: boolean
 }

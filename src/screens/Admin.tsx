@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { USE_SERVER, api } from '../api'
 import { Button, Card, Screen } from '../components/ui'
+import { setPreviewMode, usePreviewMode } from '../prefs'
 import { deleteAllSessions, download, loadAllSessions, sessionsToCsv } from '../storage'
 import type { SessionRecord } from '../types'
 
@@ -13,11 +14,14 @@ export function Admin() {
   const [error, setError] = useState<string | null>(null)
   const [localSessions, setLocalSessions] = useState(loadAllSessions)
 
-  const [showSamples, setShowSamples] = useState(false)
+  const [showTest, setShowTest] = useState(false)
+  const preview = usePreviewMode()
 
   const all = source === 'server' ? (serverSessions ?? []) : localSessions
-  const sampleCount = all.filter(isSample).length
-  const sessions = showSamples ? all : all.filter((s) => !isSample(s))
+  const testCount = all.filter(isTest).length
+  const sessions = showTest ? all : all.filter((s) => !isTest(s))
+  // Preview mode is only offered once the admin key has been accepted (or there is no server).
+  const unlocked = !USE_SERVER || serverSessions !== null
   const finished = sessions.filter((s) => s.survey)
   const stamp = new Date().toISOString().slice(0, 10)
 
@@ -61,7 +65,7 @@ export function Admin() {
               value={key}
               onChange={(e) => setKey(e.target.value)}
               className="w-full rounded-2xl border-2 border-slate-300 bg-white px-4 py-3 outline-none focus:border-sky-400"
-              placeholder="ADMIN_KEY from your .env"
+              placeholder="Enter admin key"
             />
           </label>
           {error && <p className="text-sm font-bold text-rose-600">{error}</p>}
@@ -79,10 +83,24 @@ export function Admin() {
                 : 'Sessions saved in this browser only. Run participants on this device, or export after each one.'}
           </p>
 
-          {sampleCount > 0 && (
+          {unlocked && (
+            <Card className="mb-4 flex items-center justify-between gap-4 p-4">
+              <div>
+                <div className="font-extrabold">Preview mode</div>
+                <p className="text-sm text-slate-500">
+                  Unlock every lesson and the survey on this device. Sessions used while it is on are marked as test data.
+                </p>
+              </div>
+              <Button variant={preview ? 'primary' : 'secondary'} className="whitespace-nowrap" onClick={() => setPreviewMode(!preview)}>
+                {preview ? 'On' : 'Off'}
+              </Button>
+            </Card>
+          )}
+
+          {testCount > 0 && (
             <label className="mb-4 flex items-center gap-2 text-sm font-bold text-slate-600">
-              <input type="checkbox" checked={showSamples} onChange={(e) => setShowSamples(e.target.checked)} className="h-4 w-4 accent-sky-500" />
-              Include {sampleCount} sample participants (from npm run seed) in the counts and downloads
+              <input type="checkbox" checked={showTest} onChange={(e) => setShowTest(e.target.checked)} className="h-4 w-4 accent-sky-500" />
+              Include {testCount} test sessions (seeded samples and previews) in the counts and downloads
             </label>
           )}
 
@@ -133,7 +151,9 @@ export function Admin() {
               <Card key={s.id} className="flex items-center justify-between gap-2 p-3 text-sm">
                 <span className="font-mono font-bold">
                   {s.participantCode}
-                  {isSample(s) && <span className="ml-1 rounded bg-amber-100 px-1 text-xs text-amber-700">sample</span>}
+                  {isTest(s) && (
+                    <span className="ml-1 rounded bg-amber-100 px-1 text-xs text-amber-700">{s.preview ? 'preview' : 'sample'}</span>
+                  )}
                 </span>
                 <span>{s.goal ?? '—'}</span>
                 <span>
@@ -154,7 +174,7 @@ export function Admin() {
   )
 }
 
-/** Fake participants added by server/seed.ts. */
-function isSample(s: SessionRecord) {
-  return s.id.startsWith('sample-')
+/** Not a real participant: added by server/seed.ts or used in preview mode. */
+function isTest(s: SessionRecord) {
+  return s.id.startsWith('sample-') || !!s.preview
 }

@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Button, Card, ConfirmDialog, Mascot, ProgressBar, Screen, TextSizeButton, XpBadge } from '../components/ui'
 import { GOAL_LABELS } from '../content/lessons'
+import { setPreviewMode, usePreviewMode } from '../prefs'
 import { play } from '../sound'
 import type { Goal, Lesson } from '../types'
 
@@ -27,17 +28,30 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
   const coreCount = lessons.filter((l) => l.track === 'core').length
   const coreDone = lessons.filter((l) => l.track === 'core').every((l) => completed.has(l.id))
   const [confirmEarly, setConfirmEarly] = useState(false)
+  const preview = usePreviewMode()
 
   return (
     <Screen>
-      <header className="sticky top-0 z-10 -mx-4 mb-4 flex items-center justify-between bg-slate-50/90 px-4 py-2 backdrop-blur">
-        <span className="font-extrabold text-lime-600">🥑 MacroQuest</span>
-        <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-10 -mx-4 mb-4 flex items-center justify-between gap-2 bg-slate-50/90 px-4 py-2 backdrop-blur">
+        <span className="flex shrink-0 items-center gap-1.5 whitespace-nowrap font-extrabold text-lime-600">
+          <img src="/logo.svg" alt="" className="h-6 w-6" />
+          MacroQuest
+        </span>
+        <div className="flex items-center gap-2 sm:gap-3">
           <XpBadge xp={xp} />
           <TextSizeButton />
           {account}
         </div>
       </header>
+
+      {preview && (
+        <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-sm">
+          <span className="font-bold text-amber-800">🔓 Preview mode: every lesson is unlocked and this session is marked as test data.</span>
+          <button type="button" onClick={() => setPreviewMode(false)} className="whitespace-nowrap font-extrabold text-amber-700 underline">
+            Turn off
+          </button>
+        </div>
+      )}
 
       <ProgressBar value={completed.size / lessons.length} />
       <p className="mt-2 text-sm font-bold text-slate-500">
@@ -49,7 +63,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
         {lessons.map((lesson, i) => {
           const done = completed.has(lesson.id)
           const current = i === nextIndex
-          const locked = !done && !current
+          const locked = !preview && !done && !current
           return (
             <div key={lesson.id} className="flex w-full flex-col items-center">
               {i === 0 && <SectionLabel>Unit 1 · Core skills</SectionLabel>}
@@ -91,7 +105,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
         })}
       </div>
 
-      {coreDone && !allDone && !endedEarly && (
+      {coreDone && !allDone && !endedEarly && !preview && (
         <Card className="mt-8 flex flex-col items-center gap-2 text-center">
           <h2 className="font-extrabold">Short on time?</h2>
           <p className="text-sm text-slate-500">
@@ -103,10 +117,10 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
         </Card>
       )}
 
-      {(allDone || endedEarly) && (
+      {(allDone || endedEarly || preview) && (
         <Card className="mt-8 flex flex-col items-center gap-3 text-center">
           <Mascot mood="cheer" />
-          <h2 className="text-xl font-extrabold">{allDone ? 'You finished every lesson!' : 'Thanks for taking part!'}</h2>
+          <h2 className="text-xl font-extrabold">{allDone ? 'You finished every lesson!' : preview ? 'Preview the survey' : 'Thanks for taking part!'}</h2>
           <p className="text-slate-500">One last step: tell us what you thought. It takes about 3 minutes.</p>
           <Button className="w-full" onClick={onSurvey}>
             Take the survey

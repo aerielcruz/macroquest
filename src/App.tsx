@@ -10,6 +10,7 @@ import { LessonPath } from './screens/LessonPath'
 import { LessonPlayer } from './screens/LessonPlayer'
 import { Survey } from './screens/Survey'
 import { Welcome } from './screens/Welcome'
+import { usePreviewMode } from './prefs'
 import { clearCurrent, loadAllSessions, loadCurrentId, newId, newParticipantCode, saveSession } from './storage'
 import type { SessionRecord } from './types'
 
@@ -34,6 +35,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null)
   const [googleClientId, setGoogleClientId] = useState<string | null>(null)
   const [syncError, setSyncError] = useState(false)
+  const preview = usePreviewMode()
 
   useEffect(() => {
     const onHash = () => setHash(window.location.hash)
@@ -74,6 +76,11 @@ export default function App() {
       .then(() => setSyncError(false))
       .catch(() => setSyncError(true))
   }, [session, user])
+
+  // Anything done in preview mode is test data, so tag the session before it is saved again.
+  useEffect(() => {
+    if (preview && session && !session.preview) setSession({ ...session, preview: true })
+  }, [preview, session])
 
   const signIn = useCallback((credential: string) => {
     api
@@ -116,6 +123,7 @@ export default function App() {
               xp: 0,
               lessons: [],
               logTasks: [],
+              ...(preview && { preview: true }),
             })
             setView({ name: 'path' })
           }}

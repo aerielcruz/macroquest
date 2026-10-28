@@ -20,7 +20,7 @@ export function Welcome({ onStart, signIn }: Props) {
     return (
       <Screen>
         <div className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
-          <Mascot size="text-8xl" />
+          <img src="/logo.svg" alt="" className="h-32 w-32" />
           <h1 className="text-4xl font-extrabold text-lime-600">MacroQuest</h1>
           <p className="max-w-sm text-lg text-slate-600">
             Learn how to track calories and macros, one bite-sized lesson at a time.
