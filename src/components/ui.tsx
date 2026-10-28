@@ -14,13 +14,15 @@ const VARIANTS: Record<Variant, string> = {
 
 export function Button({
   variant = 'primary',
+  size = 'md',
   className = '',
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: 'sm' | 'md' }) {
+  const sizing = size === 'sm' ? 'rounded-xl px-3 py-1.5 text-sm' : 'rounded-2xl px-5 py-3'
   return (
     <button
       {...props}
-      className={`rounded-2xl border-b-4 px-5 py-3 font-extrabold uppercase tracking-wide transition active:translate-y-0.5 active:border-b-2 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:translate-y-0 ${VARIANTS[variant]} ${className}`}
+      className={`${sizing} border-b-4 font-extrabold uppercase tracking-wide transition active:translate-y-0.5 active:border-b-2 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:translate-y-0 ${VARIANTS[variant]} ${className}`}
     />
   )
 }

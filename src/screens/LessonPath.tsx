@@ -26,21 +26,44 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
   const nextIndex = lessons.findIndex((l) => !completed.has(l.id))
   const allDone = nextIndex === -1
   const coreCount = lessons.filter((l) => l.track === 'core').length
-  const coreDone = lessons.filter((l) => l.track === 'core').every((l) => completed.has(l.id))
+  const coreCompleted = lessons.filter((l) => l.track === 'core' && completed.has(l.id)).length
+  const coreDone = coreCompleted === coreCount
   const [confirmEarly, setConfirmEarly] = useState(false)
   const preview = usePreviewMode()
+  // Before every lesson is done, the survey goes through the "Finish early?" check.
+  const surveyReady = allDone || endedEarly || preview
 
   return (
     <Screen>
-      <header className="sticky top-0 z-10 -mx-4 mb-4 flex items-center justify-between gap-2 bg-slate-50/90 px-4 py-2 backdrop-blur">
-        <span className="flex shrink-0 items-center gap-1.5 whitespace-nowrap font-extrabold text-lime-600">
-          <img src="/logo.svg" alt="" className="h-6 w-6" />
-          MacroQuest
-        </span>
-        <div className="flex items-center gap-2 sm:gap-3">
-          <XpBadge xp={xp} />
-          <TextSizeButton />
-          {account}
+      <header className="sticky top-0 z-10 -mx-4 mb-4 bg-slate-50/90 px-4 py-2 backdrop-blur">
+        <div className="flex items-center justify-between gap-2">
+          <span className="flex shrink-0 items-center gap-1.5 whitespace-nowrap font-extrabold text-lime-600">
+            <img src="/logo.svg" alt="" className="h-6 w-6" />
+            MacroQuest
+          </span>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <XpBadge xp={xp} />
+            <TextSizeButton />
+            {account}
+          </div>
+        </div>
+        <div className="mt-2 flex items-center gap-3 border-slate-200 pt-2">
+          <Button
+            variant={surveyReady ? 'primary' : 'secondary'}
+            size="sm"
+            className="shrink-0 whitespace-nowrap"
+            disabled={!coreDone && !surveyReady}
+            onClick={surveyReady ? onSurvey : () => setConfirmEarly(true)}
+          >
+            {coreDone || surveyReady ? '📝' : '🔒'} Take the survey
+          </Button>
+          <p className="text-xs font-bold text-slate-500">
+            {surveyReady
+              ? 'All set! It takes about 3 minutes.'
+              : coreDone
+                ? 'Ready when you are, but finishing every lesson helps our study most.'
+                : `Complete Unit 1 to take the survey (${coreCompleted} of ${coreCount} done).`}
+          </p>
         </div>
       </header>
 
@@ -117,7 +140,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
         </Card>
       )}
 
-      {(allDone || endedEarly || preview) && (
+      {surveyReady && (
         <Card className="mt-8 flex flex-col items-center gap-3 text-center">
           <Mascot mood="cheer" />
           <h2 className="text-xl font-extrabold">{allDone ? 'You finished every lesson!' : preview ? 'Preview the survey' : 'Thanks for taking part!'}</h2>
