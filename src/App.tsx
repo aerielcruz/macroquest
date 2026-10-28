@@ -179,6 +179,11 @@ export default function App() {
             setSession({ ...session, survey, finishedAt: survey.submittedAt })
             setView({ name: 'done' })
           }}
+          onBack={() => {
+            // Going back to keep learning undoes "Finish early"; they can choose it again later.
+            if (session.endedEarly) setSession({ ...session, endedEarly: false })
+            setView({ name: 'path' })
+          }}
         />
       )
     case 'done':

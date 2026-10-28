@@ -6,7 +6,16 @@ import type { SurveyResponse } from '../types'
 
 const SKILL_IDS = SKILL_ITEMS.flatMap((g) => g.items.map((i) => i.id))
 
-export function Survey({ sessionId, onSubmit }: { sessionId: string; onSubmit: (r: SurveyResponse) => void }) {
+export function Survey({
+  sessionId,
+  onSubmit,
+  onBack,
+}: {
+  sessionId: string
+  onSubmit: (r: SurveyResponse) => void
+  /** Back to the lesson map. Answers so far stay saved in the draft. */
+  onBack: () => void
+}) {
   const [draft] = useState(() => loadSurveyDraft(sessionId))
   const [page, setPage] = useState(draft?.page ?? 0)
   const [ratings, setRatings] = useState<Record<string, number>>(draft?.ratings ?? {})
@@ -30,7 +39,17 @@ export function Survey({ sessionId, onSubmit }: { sessionId: string; onSubmit: (
 
   return (
     <Screen>
-      <ProgressBar value={(page + 1) / pages} className="mb-6" />
+      <div className="mb-6 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onBack}
+          className="whitespace-nowrap text-sm font-extrabold text-slate-400 hover:text-slate-600"
+          title="Your answers so far are saved"
+        >
+          ← Lessons
+        </button>
+        <ProgressBar value={(page + 1) / pages} />
+      </div>
 
       {page === 0 && (
         <>
@@ -50,9 +69,14 @@ export function Survey({ sessionId, onSubmit }: { sessionId: string; onSubmit: (
               ))}
             </section>
           ))}
-          <Button className="w-full" disabled={!ratingsDone} onClick={() => go(1)}>
-            Next
-          </Button>
+          <div className="flex gap-3">
+            <Button variant="secondary" onClick={onBack}>
+              Back
+            </Button>
+            <Button className="flex-1" disabled={!ratingsDone} onClick={() => go(1)}>
+              Next
+            </Button>
+          </div>
         </>
       )}
 
