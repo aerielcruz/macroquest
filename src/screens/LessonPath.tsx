@@ -14,13 +14,14 @@ interface Props {
   /** Ends the lessons now and goes to the survey. Offered once the core lessons are done. */
   onFinishEarly: () => void
   endedEarly: boolean
+  participantCode: string
   account?: ReactNode
 }
 
 // Zig-zag offsets give the path its Duolingo-style winding look.
 const OFFSETS = ['translate-x-0', 'translate-x-12', 'translate-x-16', 'translate-x-12', 'translate-x-0', '-translate-x-12', '-translate-x-16', '-translate-x-12']
 
-export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onFinishEarly, endedEarly, account }: Props) {
+export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onFinishEarly, endedEarly, participantCode, account }: Props) {
   const nextIndex = lessons.findIndex((l) => !completed.has(l.id))
   const allDone = nextIndex === -1
   const coreCount = lessons.filter((l) => l.track === 'core').length
@@ -42,6 +43,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
       <p className="mt-2 text-sm font-bold text-slate-500">
         {completed.size} of {lessons.length} lessons complete
       </p>
+      <ParticipantCode code={participantCode} />
 
       <div className="mt-6 flex flex-col items-center gap-5">
         {lessons.map((lesson, i) => {
@@ -127,6 +129,33 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
         </ConfirmDialog>
       )}
     </Screen>
+  )
+}
+
+/**
+ * Shown from the start so anyone who stops part-way can still ask for their data
+ * to be withdrawn. Tapping copies the code.
+ */
+function ParticipantCode({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false)
+  return (
+    <p className="mt-1 text-xs text-slate-400">
+      Your participant code:{' '}
+      <button
+        type="button"
+        onClick={() => {
+          navigator.clipboard
+            ?.writeText(code)
+            .then(() => setCopied(true))
+            .catch(() => {})
+        }}
+        className="rounded bg-slate-100 px-1.5 py-0.5 font-mono font-extrabold tracking-wider text-slate-600 hover:bg-slate-200"
+        title="Copy code"
+      >
+        {code}
+      </button>{' '}
+      {copied ? <span className="font-bold text-lime-600">Copied!</span> : 'Keep it if you might want your data removed later.'}
+    </p>
   )
 }
 

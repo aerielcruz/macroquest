@@ -51,7 +51,8 @@ export function Welcome({ onStart, signIn }: Props) {
           </p>
           <p>
             Taking part is voluntary and anonymous. Your survey answers are not linked to your name or email. You can stop at any time by
-            closing the page. At the end you will get a short code you can quote if you want your answers withdrawn.
+            closing the page. You will see a short participant code on the lesson screen that you can quote if you want your
+            answers withdrawn.
           </p>
           <p>
             If thinking about food or tracking ever feels stressful, please stop. You can talk to your GP, or call or text 1737 any

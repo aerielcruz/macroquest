@@ -130,6 +130,7 @@ export default function App() {
           completed={completed}
           xp={session.xp}
           goal={session.goal}
+          participantCode={session.participantCode}
           account={account}
           onOpen={(id) => setView({ name: 'lesson', id })}
           onSurvey={() => setView({ name: 'survey' })}
