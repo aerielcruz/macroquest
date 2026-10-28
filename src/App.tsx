@@ -133,6 +133,11 @@ export default function App() {
           account={account}
           onOpen={(id) => setView({ name: 'lesson', id })}
           onSurvey={() => setView({ name: 'survey' })}
+          endedEarly={!!session.endedEarly}
+          onFinishEarly={() => {
+            setSession({ ...session, endedEarly: true })
+            setView({ name: 'survey' })
+          }}
         />
       )
     case 'lesson': {

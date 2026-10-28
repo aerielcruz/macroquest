@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import { SATISFACTION_ITEMS, SKILL_ITEMS } from '../src/content/survey'
-import { lessonsForGoal } from '../src/content/lessons'
+import { CORE_LESSONS, lessonsForGoal } from '../src/content/lessons'
 import type { Experience, Goal, LessonResult, LogTaskResult, SessionRecord, SurveyResponse } from '../src/types'
 import { connect, studySessions } from './db'
 
@@ -41,7 +41,9 @@ function sampleSession(i: number): SessionRecord {
   const start = new Date(Date.UTC(2026, 9, 1 + i, int(8, 20), int(0, 59)))
   let t = start.getTime() + 60_000
 
-  const lessons: LessonResult[] = lessonsForGoal(goal).map((lesson) => {
+  const endedEarly = i % 5 === 4
+  const taken = endedEarly ? CORE_LESSONS : lessonsForGoal(goal)
+  const lessons: LessonResult[] = taken.map((lesson) => {
     const questionCount = lesson.questions.length
     const firstTryCorrect = int(Math.max(0, questionCount - 2), questionCount)
     const durationMs = int(90, 300) * 1000
@@ -84,6 +86,7 @@ function sampleSession(i: number): SessionRecord {
     id: `sample-${String(i + 1).padStart(2, '0')}`,
     participantCode: `SMP${String(i + 1).padStart(3, '0')}`,
     startedAt: start.toISOString(),
+    ...(endedEarly && { endedEarly }),
     consentAt: start.toISOString(),
     finishedAt: submittedAt,
     experience,

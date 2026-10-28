@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { Button, Card, Mascot, ProgressBar, Screen, TextSizeButton } from '../components/ui'
+import { Button, Card, ConfirmDialog, Mascot, ProgressBar, Screen, TextSizeButton } from '../components/ui'
 import { FOODS } from '../content/foods'
 import { Illustration } from '../content/illustrations'
 import {
@@ -183,42 +183,19 @@ export function LessonPlayer({ lesson, replay = false, onExit, onComplete }: Pro
       )}
 
       {feedback && <FeedbackBar feedback={feedback} onNext={next} />}
-      {confirmQuit && <QuitDialog onStay={() => setConfirmQuit(false)} onQuit={onExit} />}
+      {confirmQuit && (
+        <ConfirmDialog
+          title="Quit this lesson?"
+          confirmLabel="Quit"
+          cancelLabel="Keep learning"
+          danger
+          onConfirm={onExit}
+          onCancel={() => setConfirmQuit(false)}
+        >
+          Your answers in this lesson will be lost. Lessons you have already finished stay saved.
+        </ConfirmDialog>
+      )}
     </Screen>
-  )
-}
-
-function QuitDialog({ onStay, onQuit }: { onStay: () => void; onQuit: () => void }) {
-  useHotkeys(
-    (key) => {
-      if (key === 'Escape') {
-        onStay()
-        return true
-      }
-    },
-    { capture: true },
-  )
-  return (
-    <div
-      className="fixed inset-0 z-30 flex items-end justify-center bg-slate-900/40 p-4 sm:items-center"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="quit-title"
-    >
-      <Card className="w-full max-w-sm text-center">
-        <Mascot mood="think" size="text-5xl" />
-        <h2 id="quit-title" className="mt-2 text-xl font-extrabold">
-          Quit this lesson?
-        </h2>
-        <p className="mt-1 text-slate-500">Your answers in this lesson will be lost. Lessons you have already finished stay saved.</p>
-        <Button className="mt-5 w-full" onClick={onStay} autoFocus>
-          Keep learning
-        </Button>
-        <Button variant="ghost" className="mt-2 w-full text-rose-500 hover:text-rose-600" onClick={onQuit}>
-          Quit
-        </Button>
-      </Card>
-    </div>
   )
 }
 

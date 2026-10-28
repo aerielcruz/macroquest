@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react'
-import { Button, Card, Mascot, ProgressBar, Screen, TextSizeButton, XpBadge } from '../components/ui'
+import { useState, type ReactNode } from 'react'
+import { Button, Card, ConfirmDialog, Mascot, ProgressBar, Screen, TextSizeButton, XpBadge } from '../components/ui'
 import { GOAL_LABELS } from '../content/lessons'
 import type { Goal, Lesson } from '../types'
 
@@ -10,16 +10,21 @@ interface Props {
   goal: Goal
   onOpen: (lessonId: string) => void
   onSurvey: () => void
+  /** Ends the lessons now and goes to the survey. Offered once the core lessons are done. */
+  onFinishEarly: () => void
+  endedEarly: boolean
   account?: ReactNode
 }
 
 // Zig-zag offsets give the path its Duolingo-style winding look.
 const OFFSETS = ['translate-x-0', 'translate-x-12', 'translate-x-16', 'translate-x-12', 'translate-x-0', '-translate-x-12', '-translate-x-16', '-translate-x-12']
 
-export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, account }: Props) {
+export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onFinishEarly, endedEarly, account }: Props) {
   const nextIndex = lessons.findIndex((l) => !completed.has(l.id))
   const allDone = nextIndex === -1
   const coreCount = lessons.filter((l) => l.track === 'core').length
+  const coreDone = lessons.filter((l) => l.track === 'core').every((l) => completed.has(l.id))
+  const [confirmEarly, setConfirmEarly] = useState(false)
 
   return (
     <Screen>
@@ -80,15 +85,42 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, acc
         })}
       </div>
 
-      {allDone && (
+      {coreDone && !allDone && !endedEarly && (
+        <Card className="mt-8 flex flex-col items-center gap-2 text-center">
+          <h2 className="font-extrabold">Short on time?</h2>
+          <p className="text-sm text-slate-500">
+            You have finished the core skills. You can stop here and go to the survey, but finishing every lesson helps our study most.
+          </p>
+          <Button variant="secondary" className="mt-1 w-full" onClick={() => setConfirmEarly(true)}>
+            Finish early
+          </Button>
+        </Card>
+      )}
+
+      {(allDone || endedEarly) && (
         <Card className="mt-8 flex flex-col items-center gap-3 text-center">
           <Mascot mood="cheer" />
-          <h2 className="text-xl font-extrabold">You finished every lesson!</h2>
+          <h2 className="text-xl font-extrabold">{allDone ? 'You finished every lesson!' : 'Thanks for taking part!'}</h2>
           <p className="text-slate-500">One last step: tell us what you thought. It takes about 3 minutes.</p>
           <Button className="w-full" onClick={onSurvey}>
             Take the survey
           </Button>
         </Card>
+      )}
+
+      {confirmEarly && (
+        <ConfirmDialog
+          title="Finish early?"
+          confirmLabel="Finish and go to the survey"
+          cancelLabel="Keep learning"
+          onConfirm={() => {
+            setConfirmEarly(false)
+            onFinishEarly()
+          }}
+          onCancel={() => setConfirmEarly(false)}
+        >
+          You will skip the remaining {lessons.length - completed.size} lessons and go straight to the short survey.
+        </ConfirmDialog>
       )}
     </Screen>
   )

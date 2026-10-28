@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { useHotkeys } from '../hotkeys'
 import { setLargeText, useLargeText } from '../prefs'
 import { XP_PER_LEVEL, levelFor } from '../scoring'
 
@@ -79,5 +80,57 @@ export function TextSizeButton() {
       <span className="text-sm">A</span>
       <span className="text-lg">A</span>
     </button>
+  )
+}
+
+/** Yes/no question over the current screen. Esc or the highlighted button picks the safe option. */
+export function ConfirmDialog({
+  title,
+  children,
+  confirmLabel,
+  cancelLabel,
+  danger = false,
+  onConfirm,
+  onCancel,
+}: {
+  title: string
+  children: ReactNode
+  confirmLabel: string
+  cancelLabel: string
+  /** Shows the confirm button in red, for actions that lose something. */
+  danger?: boolean
+  onConfirm: () => void
+  onCancel: () => void
+}) {
+  useHotkeys(
+    (key) => {
+      if (key === 'Escape') {
+        onCancel()
+        return true
+      }
+    },
+    { capture: true },
+  )
+  return (
+    <div
+      className="fixed inset-0 z-30 flex items-end justify-center bg-slate-900/40 p-4 sm:items-center"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirm-title"
+    >
+      <Card className="w-full max-w-sm text-center">
+        <Mascot mood="think" size="text-5xl" />
+        <h2 id="confirm-title" className="mt-2 text-xl font-extrabold">
+          {title}
+        </h2>
+        <p className="mt-1 text-slate-500">{children}</p>
+        <Button className="mt-5 w-full" onClick={onCancel} autoFocus>
+          {cancelLabel}
+        </Button>
+        <Button variant="ghost" className={`mt-2 w-full ${danger ? 'text-rose-500 hover:text-rose-600' : ''}`} onClick={onConfirm}>
+          {confirmLabel}
+        </Button>
+      </Card>
+    </div>
   )
 }

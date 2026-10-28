@@ -122,4 +122,6 @@ export interface SessionRecord {
   lessons: LessonResult[]
   logTasks: LogTaskResult[]
   survey?: SurveyResponse
+  /** Chose "Finish early" after the core lessons instead of completing every lesson. */
+  endedEarly?: boolean
 }

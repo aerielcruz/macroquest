@@ -136,7 +136,9 @@ export function Admin() {
                   {isSample(s) && <span className="ml-1 rounded bg-amber-100 px-1 text-xs text-amber-700">sample</span>}
                 </span>
                 <span>{s.goal ?? '—'}</span>
-                <span>{s.lessons.length} lessons</span>
+                <span>
+                  {s.lessons.length} lessons{s.endedEarly && ' (ended early)'}
+                </span>
                 <span>{s.survey ? `NPS ${s.survey.nps}` : 'no survey'}</span>
                 <span className="text-slate-400">{new Date(s.startedAt).toLocaleString()}</span>
               </Card>
