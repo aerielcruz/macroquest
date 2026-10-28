@@ -1,25 +1,27 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, Card, Mascot, ProgressBar, Screen } from '../components/ui'
-import { LIKERT_LABELS, NPS_QUESTION, RETRO_ITEMS, SATISFACTION_ITEMS } from '../content/survey'
-import type { RetroAnswer, SurveyResponse } from '../types'
+import { LIKERT_LABELS, NPS_QUESTION, SATISFACTION_ITEMS, SKILL_ITEMS } from '../content/survey'
+import { clearSurveyDraft, loadSurveyDraft, saveSurveyDraft } from '../storage'
+import type { SurveyResponse } from '../types'
 
-const RETRO_IDS = RETRO_ITEMS.flatMap((g) => g.items.map((i) => i.id))
+const SKILL_IDS = SKILL_ITEMS.flatMap((g) => g.items.map((i) => i.id))
 
-export function Survey({ onSubmit }: { onSubmit: (r: SurveyResponse) => void }) {
-  const [page, setPage] = useState(0)
-  const [retro, setRetro] = useState<Record<string, Partial<RetroAnswer>>>({})
-  const [sat, setSat] = useState<Record<string, number>>({})
-  const [nps, setNps] = useState<number | null>(null)
-  const [reason, setReason] = useState('')
-  const [comments, setComments] = useState('')
+export function Survey({ sessionId, onSubmit }: { sessionId: string; onSubmit: (r: SurveyResponse) => void }) {
+  const [draft] = useState(() => loadSurveyDraft(sessionId))
+  const [page, setPage] = useState(draft?.page ?? 0)
+  const [ratings, setRatings] = useState<Record<string, number>>(draft?.ratings ?? {})
+  const [sat, setSat] = useState<Record<string, number>>(draft?.satisfaction ?? {})
+  const [nps, setNps] = useState<number | null>(draft?.nps ?? null)
+  const [reason, setReason] = useState(draft?.npsReason ?? '')
+  const [comments, setComments] = useState(draft?.comments ?? '')
 
-  const retroDone = RETRO_IDS.every((id) => retro[id]?.before && retro[id]?.after)
+  useEffect(() => {
+    saveSurveyDraft(sessionId, { page, ratings, satisfaction: sat, nps, npsReason: reason, comments })
+  }, [sessionId, page, ratings, sat, nps, reason, comments])
+
+  const ratingsDone = SKILL_IDS.every((id) => ratings[id])
   const satDone = SATISFACTION_ITEMS.every((i) => sat[i.id])
   const pages = 3
-
-  function setRetroValue(id: string, which: keyof RetroAnswer, v: number) {
-    setRetro((r) => ({ ...r, [id]: { ...r[id], [which]: v } }))
-  }
 
   function go(p: number) {
     setPage(p)
@@ -32,23 +34,23 @@ export function Survey({ onSubmit }: { onSubmit: (r: SurveyResponse) => void }) 
 
       {page === 0 && (
         <>
-          <Intro title="Before and after">
-            For each statement, rate how much you agreed <b>before</b> using the app, then how much you agree <b>now</b>.
-            There are no right answers, so please be honest.
+          <Intro title="Your skills now">
+            How much do you agree with each statement now that you have used the app? There are no right answers, so
+            please be honest.
           </Intro>
-          {RETRO_ITEMS.map((group) => (
+          {draft && Object.keys(draft.ratings).length > 0 && <p className="-mt-3 mb-4 text-sm font-bold text-lime-600">Welcome back! Your earlier answers are saved.</p>}
+          {SKILL_ITEMS.map((group) => (
             <section key={group.hypothesis} className="mb-6 space-y-4">
               <h2 className="text-lg font-extrabold text-slate-500">{group.heading}</h2>
               {group.items.map((item) => (
-                <Card key={item.id} className="space-y-4 p-4">
+                <Card key={item.id} className="space-y-3 p-4">
                   <p className="font-bold">{item.text}</p>
-                  <LikertRow label="Before" value={retro[item.id]?.before} onChange={(v) => setRetroValue(item.id, 'before', v)} />
-                  <LikertRow label="Now" value={retro[item.id]?.after} onChange={(v) => setRetroValue(item.id, 'after', v)} />
+                  <LikertRow value={ratings[item.id]} onChange={(v) => setRatings((r) => ({ ...r, [item.id]: v }))} />
                 </Card>
               ))}
             </section>
           ))}
-          <Button className="w-full" disabled={!retroDone} onClick={() => go(1)}>
+          <Button className="w-full" disabled={!ratingsDone} onClick={() => go(1)}>
             Next
           </Button>
         </>
@@ -124,17 +126,18 @@ export function Survey({ onSubmit }: { onSubmit: (r: SurveyResponse) => void }) 
             <Button
               className="flex-1"
               disabled={nps === null}
-              onClick={() =>
-                nps !== null &&
+              onClick={() => {
+                if (nps === null) return
                 onSubmit({
-                  retro: Object.fromEntries(RETRO_IDS.map((id) => [id, retro[id] as RetroAnswer])),
+                  ratings,
                   satisfaction: sat,
                   nps,
                   npsReason: reason.trim(),
                   comments: comments.trim(),
                   submittedAt: new Date().toISOString(),
                 })
-              }
+                clearSurveyDraft(sessionId)
+              }}
             >
               Submit
             </Button>
@@ -157,10 +160,9 @@ function Intro({ title, children }: { title: string; children: React.ReactNode }
   )
 }
 
-function LikertRow({ label, value, onChange }: { label?: string; value?: number; onChange: (v: number) => void }) {
+function LikertRow({ value, onChange }: { value?: number; onChange: (v: number) => void }) {
   return (
     <div>
-      {label && <div className="mb-1 text-xs font-extrabold uppercase text-slate-400">{label}</div>}
       <div className="grid grid-cols-5 gap-1.5">
         {LIKERT_LABELS.map((l, i) => {
           const v = i + 1

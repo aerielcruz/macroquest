@@ -141,6 +141,7 @@ export default function App() {
       return (
         <LessonPlayer
           lesson={lesson}
+          replay={completed.has(lesson.id)}
           onExit={() => setView({ name: 'path' })}
           onComplete={(result, logTasks) => {
             const already = completed.has(lesson.id)
@@ -159,6 +160,7 @@ export default function App() {
       if (!session) return null
       return (
         <Survey
+          sessionId={session.id}
           onSubmit={(survey) => {
             setSession({ ...session, survey, finishedAt: survey.submittedAt })
             setView({ name: 'done' })

@@ -13,7 +13,11 @@ export function Admin() {
   const [error, setError] = useState<string | null>(null)
   const [localSessions, setLocalSessions] = useState(loadAllSessions)
 
-  const sessions = source === 'server' ? (serverSessions ?? []) : localSessions
+  const [showSamples, setShowSamples] = useState(false)
+
+  const all = source === 'server' ? (serverSessions ?? []) : localSessions
+  const sampleCount = all.filter(isSample).length
+  const sessions = showSamples ? all : all.filter((s) => !isSample(s))
   const finished = sessions.filter((s) => s.survey)
   const stamp = new Date().toISOString().slice(0, 10)
 
@@ -75,6 +79,13 @@ export function Admin() {
                 : 'Sessions saved in this browser only. Run participants on this device, or export after each one.'}
           </p>
 
+          {sampleCount > 0 && (
+            <label className="mb-4 flex items-center gap-2 text-sm font-bold text-slate-600">
+              <input type="checkbox" checked={showSamples} onChange={(e) => setShowSamples(e.target.checked)} className="h-4 w-4 accent-sky-500" />
+              Include {sampleCount} sample participants (from npm run seed) in the counts and downloads
+            </label>
+          )}
+
           <div className="mb-6 grid grid-cols-2 gap-3">
             <Card className="p-4">
               <div className="text-3xl font-extrabold">{finished.length}</div>
@@ -120,7 +131,10 @@ export function Admin() {
           <div className="space-y-2">
             {[...sessions].reverse().map((s) => (
               <Card key={s.id} className="flex items-center justify-between gap-2 p-3 text-sm">
-                <span className="font-mono font-bold">{s.participantCode}</span>
+                <span className="font-mono font-bold">
+                  {s.participantCode}
+                  {isSample(s) && <span className="ml-1 rounded bg-amber-100 px-1 text-xs text-amber-700">sample</span>}
+                </span>
                 <span>{s.goal ?? '—'}</span>
                 <span>{s.lessons.length} lessons</span>
                 <span>{s.survey ? `NPS ${s.survey.nps}` : 'no survey'}</span>
@@ -136,4 +150,9 @@ export function Admin() {
       </a>
     </Screen>
   )
+}
+
+/** Fake participants added by server/seed.ts. */
+function isSample(s: SessionRecord) {
+  return s.id.startsWith('sample-')
 }

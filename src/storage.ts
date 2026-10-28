@@ -1,5 +1,5 @@
 import type { SessionRecord } from './types'
-import { RETRO_ITEMS, SATISFACTION_ITEMS } from './content/survey'
+import { SATISFACTION_ITEMS, SKILL_ITEMS } from './content/survey'
 
 // No backend for the MVP: every session is kept in this browser's localStorage.
 // The researcher exports them from the #admin page.
@@ -47,6 +47,34 @@ export function deleteAllSessions() {
   write(CURRENT_KEY, null)
 }
 
+/** Unsubmitted survey answers, kept so a refresh or closed tab does not lose them. */
+export interface SurveyDraft {
+  page: number
+  ratings: Record<string, number>
+  satisfaction: Record<string, number>
+  nps: number | null
+  npsReason: string
+  comments: string
+}
+
+const draftKey = (sessionId: string) => `macroquest.surveyDraft.${sessionId}`
+
+export function loadSurveyDraft(sessionId: string): SurveyDraft | null {
+  return read<SurveyDraft | null>(draftKey(sessionId), null)
+}
+
+export function saveSurveyDraft(sessionId: string, draft: SurveyDraft) {
+  write(draftKey(sessionId), draft)
+}
+
+export function clearSurveyDraft(sessionId: string) {
+  try {
+    localStorage.removeItem(draftKey(sessionId))
+  } catch {
+    // Nothing to clean up if storage is blocked.
+  }
+}
+
 export function newId() {
   return crypto.randomUUID()
 }
@@ -64,12 +92,12 @@ function csvCell(v: unknown) {
 
 /** One row per session, wide format, ready for SPSS/R/Excel. */
 export function sessionsToCsv(sessions: SessionRecord[]): string {
-  const retroIds = RETRO_ITEMS.flatMap((g) => g.items.map((i) => i.id))
+  const skillIds = SKILL_ITEMS.flatMap((g) => g.items.map((i) => i.id))
   const satIds = SATISFACTION_ITEMS.map((i) => i.id)
   const header = [
     'participant_code', 'started_at', 'finished_at', 'duration_min', 'experience', 'goal', 'xp',
     'lessons_completed', 'first_try_correct', 'questions_total', 'log_accuracy_mean_pct',
-    ...retroIds.flatMap((id) => [`${id}_before`, `${id}_after`]),
+    ...skillIds,
     ...satIds, 'nps', 'nps_reason', 'comments',
   ]
   const rows = sessions.map((s) => {
@@ -84,7 +112,7 @@ export function sessionsToCsv(sessions: SessionRecord[]): string {
     return [
       s.participantCode, s.startedAt, s.finishedAt, dur, s.experience, s.goal, s.xp,
       s.lessons.length, first, total, acc,
-      ...retroIds.flatMap((id) => [s.survey?.retro[id]?.before, s.survey?.retro[id]?.after]),
+      ...skillIds.map((id) => s.survey?.ratings?.[id] ?? s.survey?.retro?.[id]?.after),
       ...satIds.map((id) => s.survey?.satisfaction[id]),
       s.survey?.nps, s.survey?.npsReason, s.survey?.comments,
     ].map(csvCell).join(',')

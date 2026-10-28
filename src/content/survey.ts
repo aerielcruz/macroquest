@@ -6,8 +6,8 @@ export interface SurveyItem {
   text: string
 }
 
-/** Retrospective before/after items, 1-5 agreement. H1 = knowledge, H2 = logging confidence. */
-export const RETRO_ITEMS: { hypothesis: 'H1' | 'H2'; heading: string; items: SurveyItem[] }[] = [
+/** Self-rated skills after using the app, 1-5 agreement. H1 = knowledge, H2 = logging confidence. */
+export const SKILL_ITEMS: { hypothesis: 'H1' | 'H2'; heading: string; items: SurveyItem[] }[] = [
   {
     hypothesis: 'H1',
     heading: 'Tracking knowledge',

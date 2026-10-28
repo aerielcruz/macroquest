@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Button, Card, Mascot, ProgressBar, Screen, XpBadge } from '../components/ui'
+import { Button, Card, Mascot, ProgressBar, Screen, TextSizeButton, XpBadge } from '../components/ui'
 import { GOAL_LABELS } from '../content/lessons'
 import type { Goal, Lesson } from '../types'
 
@@ -27,6 +27,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, acc
         <span className="font-extrabold text-lime-600">🥑 MacroQuest</span>
         <div className="flex items-center gap-3">
           <XpBadge xp={xp} />
+          <TextSizeButton />
           {account}
         </div>
       </header>

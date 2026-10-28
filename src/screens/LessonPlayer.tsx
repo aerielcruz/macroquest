@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { Button, Card, Mascot, ProgressBar, Screen } from '../components/ui'
+import { Button, Card, Mascot, ProgressBar, Screen, TextSizeButton } from '../components/ui'
 import { FOODS } from '../content/foods'
 import { Illustration } from '../content/illustrations'
 import {
@@ -12,12 +12,15 @@ import {
   nudge,
   truthFor,
 } from '../scoring'
+import { useHotkeys } from '../hotkeys'
 import { play, setMuted, useMuted } from '../sound'
 import type { LessonResult, Lesson, LogQuestion, LogTaskResult, McqQuestion, NumericQuestion, Question } from '../types'
 import { Choice } from './Welcome'
 
 interface Props {
   lesson: Lesson
+  /** The lesson was finished before: no XP, and the tips can be skipped. */
+  replay?: boolean
   onExit: () => void
   onComplete: (result: LessonResult, logTasks: LogTaskResult[]) => void
 }
@@ -30,7 +33,7 @@ interface Feedback {
   retry: boolean
 }
 
-export function LessonPlayer({ lesson, onExit, onComplete }: Props) {
+export function LessonPlayer({ lesson, replay = false, onExit, onComplete }: Props) {
   const startedAt = useRef(Date.now())
   const [cardIndex, setCardIndex] = useState(0)
   // Questions answered wrongly go to the back of the queue, like Duolingo.
@@ -43,6 +46,8 @@ export function LessonPlayer({ lesson, onExit, onComplete }: Props) {
   const [logTasks, setLogTasks] = useState<LogTaskResult[]>([])
   const [finished, setFinished] = useState(false)
   const [turn, setTurn] = useState(0)
+  const [missed, setMissed] = useState<number[]>([])
+  const [confirmQuit, setConfirmQuit] = useState(false)
   const attemptedOnce = useRef<Set<number>>(new Set())
 
   const inCards = cardIndex < lesson.cards.length
@@ -63,6 +68,8 @@ export function LessonPlayer({ lesson, onExit, onComplete }: Props) {
     } else {
       setCombo(0)
       play('wrong')
+      // Log tasks already list every fix in their feedback, so only review the others.
+      if (question.kind !== 'log') setMissed((m) => (m.includes(qIndex) ? m : [...m, qIndex]))
     }
     setFeedback({ correct, title: title ?? (correct ? cheer() : nudge()), detail, extra, retry: !correct && question.kind !== 'log' })
   }
@@ -84,38 +91,60 @@ export function LessonPlayer({ lesson, onExit, onComplete }: Props) {
 
   const xpEarned = firstTry * XP_PER_CORRECT + XP_LESSON_BONUS
 
+  function finish() {
+    onComplete(
+      {
+        lessonId: lesson.id,
+        questionCount: lesson.questions.length,
+        firstTryCorrect: firstTry,
+        attempts,
+        xpEarned,
+        durationMs: Date.now() - startedAt.current,
+        completedAt: new Date().toISOString(),
+      },
+      logTasks,
+    )
+  }
+
+  /** Leaving straight away is fine until there is progress worth keeping. */
+  function requestQuit() {
+    if (cardIndex === 0 && attempts === 0) onExit()
+    else setConfirmQuit(true)
+  }
+
+  useHotkeys((key) => {
+    if (finished) {
+      if (key !== 'Enter') return
+      finish()
+      return true
+    }
+    if (key === 'Escape') {
+      requestQuit()
+      return true
+    }
+  })
+
   if (finished) {
     const pct = Math.round((firstTry / lesson.questions.length) * 100)
     return (
       <Screen>
         <div className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
           <Mascot mood="cheer" size="text-8xl" />
-          <h1 className="text-3xl font-extrabold text-amber-500">Lesson complete!</h1>
+          <h1 className="text-3xl font-extrabold text-amber-500">{replay ? 'Practice complete!' : 'Lesson complete!'}</h1>
           <div className="grid w-full max-w-sm grid-cols-2 gap-3">
-            <Stat label="XP earned" value={`+${xpEarned}`} tone="amber" />
+            <Stat label="XP earned" value={replay ? '+0' : `+${xpEarned}`} tone="amber" />
             <Stat label="First try" value={`${pct}%`} tone="lime" />
           </div>
           <p className="max-w-sm text-slate-500">
-            {pct === 100 ? 'Flawless. You clearly know your stuff.' : 'Every mistake you fixed is a skill you now own.'}
+            {replay
+              ? 'XP only counts the first time, but practice still pays off.'
+              : pct === 100
+                ? 'Flawless. You clearly know your stuff.'
+                : 'Every mistake you fixed is a skill you now own.'}
           </p>
+          {missed.length > 0 && <MistakeReview questions={missed.map((i) => lesson.questions[i])} />}
         </div>
-        <Button
-          className="w-full"
-          onClick={() =>
-            onComplete(
-              {
-                lessonId: lesson.id,
-                questionCount: lesson.questions.length,
-                firstTryCorrect: firstTry,
-                attempts,
-                xpEarned,
-                durationMs: Date.now() - startedAt.current,
-                completedAt: new Date().toISOString(),
-              },
-              logTasks,
-            )
-          }
-        >
+        <Button className="mt-6 w-full" onClick={finish}>
           Continue
         </Button>
       </Screen>
@@ -125,11 +154,12 @@ export function LessonPlayer({ lesson, onExit, onComplete }: Props) {
   return (
     <Screen>
       <div className="mb-6 flex items-center gap-3">
-        <button type="button" onClick={onExit} className="text-2xl font-bold text-slate-400 hover:text-slate-600" aria-label="Back to path">
+        <button type="button" onClick={requestQuit} className="text-2xl font-bold text-slate-400 hover:text-slate-600" aria-label="Quit lesson">
           ✕
         </button>
         <ProgressBar value={progress} />
         {combo >= 2 && <span className="whitespace-nowrap text-sm font-extrabold text-orange-500">🔥 {combo} in a row</span>}
+        <TextSizeButton />
         <MuteButton />
       </div>
 
@@ -140,6 +170,7 @@ export function LessonPlayer({ lesson, onExit, onComplete }: Props) {
           step={cardIndex + 1}
           of={lesson.cards.length}
           onNext={() => setCardIndex((i) => i + 1)}
+          onSkip={replay ? () => setCardIndex(lesson.cards.length) : undefined}
         />
       ) : (
         <QuestionView
@@ -152,7 +183,65 @@ export function LessonPlayer({ lesson, onExit, onComplete }: Props) {
       )}
 
       {feedback && <FeedbackBar feedback={feedback} onNext={next} />}
+      {confirmQuit && <QuitDialog onStay={() => setConfirmQuit(false)} onQuit={onExit} />}
     </Screen>
+  )
+}
+
+function QuitDialog({ onStay, onQuit }: { onStay: () => void; onQuit: () => void }) {
+  useHotkeys(
+    (key) => {
+      if (key === 'Escape') {
+        onStay()
+        return true
+      }
+    },
+    { capture: true },
+  )
+  return (
+    <div
+      className="fixed inset-0 z-30 flex items-end justify-center bg-slate-900/40 p-4 sm:items-center"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="quit-title"
+    >
+      <Card className="w-full max-w-sm text-center">
+        <Mascot mood="think" size="text-5xl" />
+        <h2 id="quit-title" className="mt-2 text-xl font-extrabold">
+          Quit this lesson?
+        </h2>
+        <p className="mt-1 text-slate-500">Your answers in this lesson will be lost. Lessons you have already finished stay saved.</p>
+        <Button className="mt-5 w-full" onClick={onStay} autoFocus>
+          Keep learning
+        </Button>
+        <Button variant="ghost" className="mt-2 w-full text-rose-500 hover:text-rose-600" onClick={onQuit}>
+          Quit
+        </Button>
+      </Card>
+    </div>
+  )
+}
+
+function answerText(q: Question) {
+  if (q.kind === 'mcq') return q.options[q.correct]
+  if (q.kind === 'numeric') return `${q.answer.toLocaleString()} ${q.unit}`
+  return ''
+}
+
+function MistakeReview({ questions }: { questions: Question[] }) {
+  return (
+    <div className="w-full text-left">
+      <h2 className="mb-2 text-lg font-extrabold">Worth another look</h2>
+      <div className="space-y-3">
+        {questions.map((q) => (
+          <Card key={q.id} className="p-4">
+            <p className="font-bold">{q.prompt}</p>
+            <p className="mt-2 font-extrabold text-lime-700">Answer: {answerText(q)}</p>
+            <p className="mt-1 text-sm text-slate-600">{q.explain}</p>
+          </Card>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -166,7 +255,25 @@ function Stat({ label, value, tone }: { label: string; value: string; tone: 'amb
   )
 }
 
-function TeachCard({ card, step, of, onNext }: { card: Lesson['cards'][number]; step: number; of: number; onNext: () => void }) {
+function TeachCard({
+  card,
+  step,
+  of,
+  onNext,
+  onSkip,
+}: {
+  card: Lesson['cards'][number]
+  step: number
+  of: number
+  onNext: () => void
+  onSkip?: () => void
+}) {
+  useHotkeys((key) => {
+    if (key === 'Enter' || key === 'ArrowRight') {
+      onNext()
+      return true
+    }
+  })
   return (
     <>
       <div className="flex items-end gap-3">
@@ -184,6 +291,12 @@ function TeachCard({ card, step, of, onNext }: { card: Lesson['cards'][number]; 
         <Button className="w-full" onClick={onNext}>
           {step === of ? 'Let’s practise' : 'Next'}
         </Button>
+        {onSkip && step < of && (
+          <Button variant="ghost" className="mt-2 w-full" onClick={onSkip}>
+            Skip to questions
+          </Button>
+        )}
+        <KeyHint>Enter for next</KeyHint>
       </div>
     </>
   )
@@ -209,40 +322,52 @@ function QuestionView(props: QuestionViewProps) {
 
 function McqView({ question, locked, onGrade }: QuestionViewProps & { question: McqQuestion }) {
   const [choice, setChoice] = useState<number | null>(null)
+
+  function pick(i: number) {
+    if (locked) return
+    play('tap')
+    setChoice(i)
+  }
+
+  function check() {
+    if (locked || choice === null) return
+    onGrade(
+      choice === question.correct,
+      choice === question.correct ? question.explain : `Answer: ${question.options[question.correct]}. ${question.explain}`,
+    )
+  }
+
+  useHotkeys((key) => {
+    if (locked) return
+    const n = Number(key)
+    if (n >= 1 && n <= question.options.length) {
+      pick(n - 1)
+      return true
+    }
+    if (key === 'Enter' && choice !== null) {
+      check()
+      return true
+    }
+  })
+
   return (
     <>
       {question.image && <Illustration id={question.image} className="mb-4" />}
       <h2 className="mb-5 text-xl font-extrabold">{question.prompt}</h2>
       <div className="space-y-3">
         {question.options.map((o, i) => (
-          <Choice
-            key={i}
-            block
-            selected={choice === i}
-            onClick={() => {
-              if (locked) return
-              play('tap')
-              setChoice(i)
-            }}
-          >
+          <Choice key={i} block selected={choice === i} onClick={() => pick(i)}>
+            <kbd className="mr-3 hidden rounded-md border-2 border-slate-200 px-1.5 font-sans text-xs text-slate-400 sm:inline">{i + 1}</kbd>
             {o}
           </Choice>
         ))}
       </div>
       {!locked && (
         <div className="mt-auto pt-6">
-          <Button
-            className="w-full"
-            disabled={choice === null}
-            onClick={() =>
-              onGrade(
-                choice === question.correct,
-                choice === question.correct ? question.explain : `Answer: ${question.options[question.correct]}. ${question.explain}`,
-              )
-            }
-          >
+          <Button className="w-full" disabled={choice === null} onClick={check}>
             Check
           </Button>
+          <KeyHint>Press 1–{question.options.length} to choose, Enter to check</KeyHint>
         </div>
       )}
     </>
@@ -274,6 +399,7 @@ function NumericView({ question, locked, onGrade }: QuestionViewProps & { questi
           <Button className="w-full" disabled={Number.isNaN(n)} onClick={submit}>
             Check
           </Button>
+          <KeyHint>Enter to check</KeyHint>
         </div>
       )}
     </>
@@ -398,6 +524,12 @@ function Macro({ label, value, unit = '' }: { label: string; value: number; unit
 
 function FeedbackBar({ feedback, onNext }: { feedback: Feedback; onNext: () => void }) {
   const ok = feedback.correct
+  useHotkeys((key) => {
+    if (key === 'Enter') {
+      onNext()
+      return true
+    }
+  })
   return (
     <div className={`fixed inset-x-0 bottom-0 z-20 border-t-2 ${ok ? 'border-lime-300 bg-lime-100' : 'border-amber-300 bg-amber-50'}`}>
       <div className="mx-auto max-w-xl px-4 py-5">
@@ -432,4 +564,9 @@ function MuteButton() {
       {muted ? '🔇' : '🔊'}
     </button>
   )
+}
+
+/** Keyboard tip, only on screens wide enough to likely have a keyboard. */
+function KeyHint({ children }: { children: React.ReactNode }) {
+  return <p className="mt-2 hidden text-center text-xs font-bold text-slate-400 sm:block">{children}</p>
 }

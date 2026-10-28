@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { RETRO_ITEMS, SATISFACTION_ITEMS } from '../src/content/survey'
+import { SATISFACTION_ITEMS, SKILL_ITEMS } from '../src/content/survey'
 import { lessonsForGoal } from '../src/content/lessons'
 import type { Experience, Goal, LessonResult, LogTaskResult, SessionRecord, SurveyResponse } from '../src/types'
 import { connect, studySessions } from './db'
@@ -70,13 +70,10 @@ function sampleSession(i: number): SessionRecord {
     return { lessonId: 'practice-log', questionId, entries: [], logged, truth, accuracyPct }
   })
 
-  // Participants usually rate themselves higher after the app than before.
-  const retro: SurveyResponse['retro'] = {}
-  for (const group of RETRO_ITEMS) {
-    for (const item of group.items) {
-      const before = clamp(int(1, 3) + (experience === 'over6m' ? 1 : 0))
-      retro[item.id] = { before, after: clamp(before + int(0, 2)) }
-    }
+  // Experienced trackers tend to rate their skills a little higher.
+  const ratings: SurveyResponse['ratings'] = {}
+  for (const group of SKILL_ITEMS) {
+    for (const item of group.items) ratings[item.id] = clamp(int(2, 4) + (experience === 'over6m' ? 1 : 0))
   }
   const satisfaction = Object.fromEntries(SATISFACTION_ITEMS.map((item) => [item.id, int(3, 5)]))
 
@@ -95,7 +92,7 @@ function sampleSession(i: number): SessionRecord {
     lessons,
     logTasks,
     survey: {
-      retro,
+      ratings,
       satisfaction,
       nps: int(5, 10),
       npsReason: pick(REASONS),

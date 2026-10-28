@@ -7,3 +7,14 @@
 body {
   @apply bg-slate-50 text-slate-800 antialiased;
 }
+
+/* Respect the system "reduce motion" setting. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

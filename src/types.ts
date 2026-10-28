@@ -98,14 +98,11 @@ export interface Macros {
   fat: number
 }
 
-/** Retrospective before/after pair on a 1-5 scale. */
-export interface RetroAnswer {
-  before: number
-  after: number
-}
-
 export interface SurveyResponse {
-  retro: Record<string, RetroAnswer>
+  /** Skill items (SKILL_ITEMS), 1-5 agreement, rated after using the app. */
+  ratings: Record<string, number>
+  /** Older records only: the earlier survey asked for before and after ratings. */
+  retro?: Record<string, { before: number; after: number }>
   satisfaction: Record<string, number>
   nps: number
   npsReason: string

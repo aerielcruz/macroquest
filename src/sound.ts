@@ -2,7 +2,8 @@ import { useSyncExternalStore } from 'react'
 
 // Sound effects synthesised with the Web Audio API, so there are no audio files to
 // load or license. Every sound follows a tap or click, which browsers require before
-// audio can play. The mute setting is remembered in this browser.
+// audio can play. Phones that support it also get a short vibration. The mute
+// setting covers both and is remembered in this browser.
 
 export type Sound = 'tap' | 'correct' | 'close' | 'combo' | 'wrong' | 'complete'
 
@@ -78,9 +79,18 @@ const SOUNDS: Record<Sound, (ac: AudioContext) => void> = {
   },
 }
 
+// Vibration patterns in milliseconds (buzz, pause, buzz...). Quiet sounds get none.
+const BUZZ: Partial<Record<Sound, number[]>> = {
+  wrong: [60, 50, 60],
+  combo: [20, 40, 20],
+  complete: [40, 40, 40, 40, 120],
+}
+
 export function play(sound: Sound) {
   if (muted) return
   try {
+    const pattern = BUZZ[sound]
+    if (pattern && 'vibrate' in navigator) navigator.vibrate(pattern)
     const ac = audio()
     if (ac) SOUNDS[sound](ac)
   } catch {

@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { setLargeText, useLargeText } from '../prefs'
 import { XP_PER_LEVEL, levelFor } from '../scoring'
 
 type Variant = 'primary' | 'secondary' | 'danger' | 'ghost'
@@ -61,4 +62,22 @@ export function Screen({ children }: { children: ReactNode }) {
 export function Mascot({ mood = 'happy', size = 'text-6xl' }: { mood?: 'happy' | 'think' | 'cheer'; size?: string }) {
   const face = { happy: '🥑', think: '🤔', cheer: '🎉' }[mood]
   return <div className={`${size} select-none`} aria-hidden>{face}</div>
+}
+
+export function TextSizeButton() {
+  const large = useLargeText()
+  const label = large ? 'Use normal text size' : 'Use larger text'
+  return (
+    <button
+      type="button"
+      onClick={() => setLargeText(!large)}
+      className={`whitespace-nowrap rounded-lg px-1 font-extrabold hover:text-slate-600 ${large ? 'text-sky-600' : 'text-slate-400'}`}
+      aria-label={label}
+      aria-pressed={large}
+      title={label}
+    >
+      <span className="text-sm">A</span>
+      <span className="text-lg">A</span>
+    </button>
+  )
 }
