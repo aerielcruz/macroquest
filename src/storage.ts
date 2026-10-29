@@ -1,8 +1,8 @@
 import type { SessionRecord } from './types'
 import { SATISFACTION_ITEMS, SKILL_ITEMS } from './content/survey'
 
-// No backend for the MVP: every session is kept in this browser's localStorage.
-// The researcher exports them from the #admin page.
+// Every session is kept in this browser's localStorage, whether or not the server
+// is on (App.tsx also sends it to the API then). The researcher exports from #admin.
 const SESSIONS_KEY = 'macroquest.sessions'
 const CURRENT_KEY = 'macroquest.current'
 
