@@ -40,6 +40,28 @@ export function saveSession(session: SessionRecord) {
 
 export function clearCurrent() {
   write(CURRENT_KEY, null)
+  clearTours()
+}
+
+const TOUR_PREFIX = 'macroquest.tour.'
+
+/** First-time tours seen in this browser. Cleared with the current session, so each new participant sees them. */
+export function hasSeenTour(name: string) {
+  return read<boolean>(TOUR_PREFIX + name, false)
+}
+
+export function markTourSeen(name: string) {
+  write(TOUR_PREFIX + name, true)
+}
+
+function clearTours() {
+  try {
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith(TOUR_PREFIX))
+      .forEach((k) => localStorage.removeItem(k))
+  } catch {
+    // Storage blocked: tours will just show again.
+  }
 }
 
 export function deleteAllSessions() {

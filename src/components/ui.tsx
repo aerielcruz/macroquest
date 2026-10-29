@@ -74,6 +74,7 @@ export function TextSizeButton() {
     <button
       type="button"
       onClick={() => setLargeText(!large)}
+      data-tour="text-size"
       className={`whitespace-nowrap rounded-lg px-1 font-extrabold hover:text-slate-600 ${large ? 'text-sky-600' : 'text-slate-400'}`}
       aria-label={label}
       aria-pressed={large}

@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { Calculator, CalculatorIcon } from '../components/Calculator'
+import { Tour, type TourStep } from '../components/Tour'
 import { Button, Card, ConfirmDialog, Mascot, ProgressBar, Screen, TextSizeButton } from '../components/ui'
 import { FOODS, foodEmoji } from '../content/foods'
 import { Illustration } from '../content/illustrations'
@@ -25,6 +26,14 @@ interface Props {
   onExit: () => void
   onComplete: (result: LessonResult, logTasks: LogTaskResult[]) => void
 }
+
+const TOUR: TourStep[] = [
+  { target: 'progress', text: 'This bar fills up as you work through the lesson.' },
+  { target: 'calculator', text: 'Need to do some maths? Open the calculator here.' },
+  { target: 'text-size', text: 'Make the text bigger or smaller.' },
+  { target: 'sound', text: 'Turn sound effects and vibration on or off.' },
+  { target: 'quit', text: 'Tap ✕ to leave the lesson. Lessons you have finished stay saved.' },
+]
 
 interface Feedback {
   correct: boolean
@@ -160,10 +169,18 @@ export function LessonPlayer({ lesson, replay = false, onExit, onComplete }: Pro
   return (
     <Screen>
       <div className="mb-6 flex items-center gap-3">
-        <button type="button" onClick={requestQuit} className="text-2xl font-bold text-slate-400 hover:text-slate-600" aria-label="Quit lesson">
+        <button
+          type="button"
+          onClick={requestQuit}
+          className="text-2xl font-bold text-slate-400 hover:text-slate-600"
+          aria-label="Quit lesson"
+          data-tour="quit"
+        >
           ✕
         </button>
-        <ProgressBar value={progress} />
+        <div className="flex-1" data-tour="progress">
+          <ProgressBar value={progress} />
+        </div>
         {combo >= 2 && <span className="whitespace-nowrap text-sm font-extrabold text-orange-500">🔥 {combo} in a row</span>}
         <button
           type="button"
@@ -175,6 +192,7 @@ export function LessonPlayer({ lesson, replay = false, onExit, onComplete }: Pro
           aria-label={calcOpen ? 'Close calculator' : 'Open calculator'}
           aria-pressed={calcOpen}
           title="Calculator"
+          data-tour="calculator"
         >
           <CalculatorIcon />
         </button>
@@ -213,6 +231,7 @@ export function LessonPlayer({ lesson, replay = false, onExit, onComplete }: Pro
 
       {feedback && <FeedbackBar feedback={feedback} onNext={next} />}
       {calcOpen && <Calculator onClose={() => setCalcOpen(false)} />}
+      <Tour name="lesson" steps={TOUR} />
       {confirmQuit && (
         <ConfirmDialog
           title="Quit this lesson?"
@@ -672,6 +691,7 @@ function MuteButton() {
       }}
       className="text-xl text-slate-400 hover:text-slate-600"
       aria-label={muted ? 'Turn sound on' : 'Turn sound off'}
+      data-tour="sound"
       title={muted ? 'Turn sound on' : 'Turn sound off'}
     >
       {muted ? '🔇' : '🔊'}

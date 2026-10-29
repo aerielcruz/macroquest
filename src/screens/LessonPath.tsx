@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Button, Card, ConfirmDialog, Mascot, ProgressBar, Screen, TextSizeButton, XpBadge } from '../components/ui'
 import { GOAL_LABELS } from '../content/lessons'
+import { Tour, type TourStep } from '../components/Tour'
 import { setPreviewMode, usePreviewMode } from '../prefs'
 import { play } from '../sound'
 import type { Goal, Lesson } from '../types'
@@ -18,6 +19,13 @@ interface Props {
   participantCode: string
   account?: ReactNode
 }
+
+const TOUR: TourStep[] = [
+  { target: 'current-lesson', text: 'Start here! Tap the glowing lesson to begin. New lessons unlock as you finish each one.' },
+  { target: 'survey', text: 'Once you finish Unit 1, you can take the short survey from here.' },
+  { target: 'text-size', text: 'Text too small? Tap AA to make everything bigger.' },
+  { target: 'participant-code', text: 'This is your participant code. Keep it if you might want your answers removed later.' },
+]
 
 // Zig-zag offsets give the path its Duolingo-style winding look.
 const OFFSETS = ['translate-x-0', 'translate-x-12', 'translate-x-16', 'translate-x-12', 'translate-x-0', '-translate-x-12', '-translate-x-16', '-translate-x-12']
@@ -53,6 +61,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
             size="sm"
             className="shrink-0 whitespace-nowrap"
             disabled={!coreDone && !surveyReady}
+            data-tour="survey"
             onClick={surveyReady ? onSurvey : () => setConfirmEarly(true)}
           >
             {coreDone || surveyReady ? '📝' : '🔒'} Take the survey
@@ -109,6 +118,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
                     onOpen(lesson.id)
                   }}
                   aria-label={lesson.title}
+                  data-tour={current ? 'current-lesson' : undefined}
                   className={`flex h-20 w-20 items-center justify-center rounded-full border-b-8 text-3xl transition active:translate-y-1 active:border-b-4 ${
                     done
                       ? 'border-amber-600 bg-amber-400'
@@ -151,6 +161,8 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
         </Card>
       )}
 
+      <Tour name="path" steps={TOUR} />
+
       {confirmEarly && (
         <ConfirmDialog
           title="Finish early?"
@@ -176,7 +188,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
 function ParticipantCode({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)
   return (
-    <p className="mt-1 text-xs text-slate-400">
+    <p className="mt-1 text-xs text-slate-400" data-tour="participant-code">
       Your participant code:{' '}
       <button
         type="button"
