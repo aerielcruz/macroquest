@@ -475,25 +475,33 @@ function LogView({ question, locked, onGrade, onLog }: QuestionViewProps & { que
                       setFoods((fs) => fs.map((x, j) => (j === i ? id : x)))
                     }}
                   >
-                    <span className="block">{f.name}</span>
-                    <span className="text-xs font-semibold text-slate-500">
-                      per 100 g: {f.kcal} kcal · P {f.protein} g · C {f.carbs} g · F {f.fat} g
+                    <span className="flex items-center gap-3">
+                      <RadioDot checked={foods[i] === id} />
+                      <span>
+                        <span className="block">{f.name}</span>
+                        <span className="text-xs font-semibold text-slate-500">
+                          per 100 g: {f.kcal} kcal · P {f.protein} g · C {f.carbs} g · F {f.fat} g
+                        </span>
+                      </span>
                     </span>
                   </Choice>
                 )
               })}
             </div>
-            <label className="flex items-center gap-2">
-              <input
-                inputMode="decimal"
-                disabled={locked}
-                value={grams[i]}
-                onChange={(e) => setGrams((gs) => gs.map((x, j) => (j === i ? e.target.value : x)))}
-                onKeyDown={(e) => e.key === 'Enter' && complete && !locked && submit()}
-                className="w-28 rounded-xl border-2 border-slate-300 px-3 py-2 font-bold outline-none focus:border-sky-400"
-                placeholder="0"
-              />
-              <span className="font-bold text-slate-500">grams</span>
+            <label className="block">
+              <span className="mb-1 block text-sm font-bold text-slate-600">How many grams?</span>
+              <span className="flex items-center gap-2">
+                <input
+                  inputMode="decimal"
+                  disabled={locked}
+                  value={grams[i]}
+                  onChange={(e) => setGrams((gs) => gs.map((x, j) => (j === i ? e.target.value : x)))}
+                  onKeyDown={(e) => e.key === 'Enter' && complete && !locked && submit()}
+                  className="w-28 rounded-xl border-2 border-slate-300 px-3 py-2 font-bold outline-none focus:border-sky-400"
+                  placeholder="0"
+                />
+                <span className="font-bold text-slate-500">grams</span>
+              </span>
             </label>
           </Card>
         ))}
@@ -514,6 +522,18 @@ function LogView({ question, locked, onGrade, onLog }: QuestionViewProps & { que
       )}
       {locked && <div className="pb-48" />}
     </>
+  )
+}
+
+/** Radio-style circle so a list of options reads as "pick one". */
+function RadioDot({ checked }: { checked: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${checked ? 'border-sky-500' : 'border-slate-300 bg-white'}`}
+    >
+      {checked && <span className="h-2.5 w-2.5 rounded-full bg-sky-500" />}
+    </span>
   )
 }
 
