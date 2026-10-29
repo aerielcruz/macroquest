@@ -26,7 +26,7 @@ function booleanPref(key: string, onChange?: (value: boolean) => void) {
       onChange?.(next)
       listeners.forEach((l) => l())
     },
-    use: () => useSyncExternalStore(subscribe, () => value),
+    use: () => useSyncExternalStore(subscribe, () => value, () => value),
   }
 }
 

@@ -1,5 +1,22 @@
 import type { FoodEntry } from '../types'
 
+const FOOD_EMOJI: Record<string, string> = {
+  chicken: '🍗',
+  rice: '🍚',
+  broccoli: '🥦',
+  olive: '🫒',
+  butter: '🧈',
+  oats: '🥣',
+  milk: '🥛',
+  banana: '🍌',
+  peanut: '🥜',
+}
+
+/** Icon for a food in the practice diary, picked by the first word of its id. */
+export function foodEmoji(id: string) {
+  return FOOD_EMOJI[id.split('_')[0]] ?? '🍽️'
+}
+
 // Values per 100 g, rounded from USDA FoodData Central (fdc.nal.usda.gov).
 // Look-alike entries (raw vs cooked, whole vs skim) are included on purpose:
 // picking the wrong entry is one of the most common real logging mistakes.

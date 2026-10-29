@@ -124,5 +124,6 @@ export function useMuted() {
       return () => listeners.delete(l)
     },
     () => muted,
+    () => muted,
   )
 }

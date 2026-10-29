@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { Button, Card, ConfirmDialog, Mascot, ProgressBar, Screen, TextSizeButton } from '../components/ui'
-import { FOODS } from '../content/foods'
+import { FOODS, foodEmoji } from '../content/foods'
 import { Illustration } from '../content/illustrations'
 import {
   LOG_PASS_PCT,
@@ -14,7 +14,7 @@ import {
 } from '../scoring'
 import { useHotkeys } from '../hotkeys'
 import { play, setMuted, useMuted } from '../sound'
-import type { LessonResult, Lesson, LogQuestion, LogTaskResult, McqQuestion, NumericQuestion, Question } from '../types'
+import type { LessonResult, Lesson, LogQuestion, LogTaskResult, Macros, McqQuestion, NumericQuestion, Question } from '../types'
 import { Choice } from './Welcome'
 
 interface Props {
@@ -452,66 +452,115 @@ function LogView({ question, locked, onGrade, onLog }: QuestionViewProps & { que
     )
   }
 
+  function pickFood(i: number, id: string) {
+    if (locked) return
+    play('tap')
+    setFoods((fs) => fs.map((x, j) => (j === i ? id : x)))
+  }
+
   return (
     <>
       {question.image && <Illustration id={question.image} className="mb-4" />}
       <h2 className="mb-1 text-xl font-extrabold">{question.prompt}</h2>
-      <p className="mb-4 text-slate-500">Pick the matching entry and enter the weight in grams.</p>
-      <div className="space-y-4">
-        {question.items.map((item, i) => (
-          <Card key={i} className="space-y-3 p-4">
-            <p className="font-bold">🍽️ {item.description}</p>
-            <div className="grid gap-2">
-              {item.choices.map((id) => {
-                const f = FOODS[id]
-                return (
-                  <Choice
-                    key={id}
-                    block
-                    selected={foods[i] === id}
-                    onClick={() => {
-                      if (locked) return
-                      play('tap')
-                      setFoods((fs) => fs.map((x, j) => (j === i ? id : x)))
-                    }}
-                  >
-                    <span className="flex items-center gap-3">
-                      <RadioDot checked={foods[i] === id} />
-                      <span>
-                        <span className="block">{f.name}</span>
-                        <span className="text-xs font-semibold text-slate-500">
-                          per 100 g: {f.kcal} kcal · P {f.protein} g · C {f.carbs} g · F {f.fat} g
+      <p className="mb-4 text-slate-500">For each food, pick the matching database entry and enter how much you ate.</p>
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between rounded-3xl bg-slate-800 px-4 py-3 text-white">
+          <div>
+            <div className="text-xs font-bold uppercase tracking-wide text-slate-300">Food diary · Today</div>
+            <div className="text-lg font-extrabold">{question.meal}</div>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-extrabold leading-none">{Math.round(logged.kcal)}</div>
+            <div className="text-xs font-bold text-slate-300">kcal</div>
+          </div>
+        </div>
+
+        {question.items.map((item, i) => {
+          const chosen = foods[i] ? FOODS[foods[i]] : null
+          const g = parseFloat(grams[i]) || 0
+          const entryKcal = chosen && g > 0 ? Math.round((chosen.kcal * g) / 100) : null
+          const inputId = `${question.id}-grams-${i}`
+          return (
+            <div key={i} className="rounded-3xl border-2 border-slate-200 bg-white p-4">
+              <div className="flex items-start gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xl" aria-hidden>
+                  {foodEmoji(item.foodId)}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-bold leading-snug">{item.description}</p>
+                  <p className={`text-xs font-bold ${entryKcal !== null ? 'text-lime-600' : 'text-slate-400'}`}>
+                    {entryKcal !== null ? `✓ Logged · ${entryKcal} kcal` : 'Not logged yet'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-3 overflow-hidden rounded-2xl border-2 border-slate-200">
+                <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 text-sm">
+                  <span aria-hidden>🔍</span>
+                  <span className="font-bold text-slate-600">Database results</span>
+                  <span className="ml-auto text-xs font-bold text-slate-400">
+                    {item.choices.length} {item.choices.length === 1 ? 'result' : 'results'}
+                  </span>
+                </div>
+                <div role="radiogroup" aria-label={`Database entry for ${item.description}`}>
+                  {item.choices.map((id) => {
+                    const f = FOODS[id]
+                    const selected = foods[i] === id
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected}
+                        disabled={locked}
+                        onClick={() => pickFood(i, id)}
+                        className={`flex w-full items-center gap-3 border-t-2 border-slate-100 px-3 py-2.5 text-left transition ${
+                          selected ? 'bg-sky-50' : 'bg-white hover:bg-slate-50'
+                        }`}
+                      >
+                        <RadioDot checked={selected} />
+                        <span className="min-w-0 flex-1">
+                          <span className={`block font-bold ${selected ? 'text-sky-700' : ''}`}>{f.name}</span>
+                          <span className="text-xs font-semibold text-slate-500">
+                            100 g · P {f.protein} g · C {f.carbs} g · F {f.fat} g
+                          </span>
                         </span>
-                      </span>
-                    </span>
-                  </Choice>
-                )
-              })}
+                        <span className="text-right">
+                          <span className="block font-extrabold">{f.kcal}</span>
+                          <span className="text-xs font-bold text-slate-400">kcal</span>
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="mt-3 flex items-center gap-3">
+                <label htmlFor={inputId} className="text-sm font-bold text-slate-600">
+                  How many grams?
+                </label>
+                <span className="flex items-center rounded-xl border-2 border-slate-300 bg-white focus-within:border-sky-400">
+                  <input
+                    id={inputId}
+                    inputMode="decimal"
+                    disabled={locked}
+                    value={grams[i]}
+                    onChange={(e) => setGrams((gs) => gs.map((x, j) => (j === i ? e.target.value : x)))}
+                    onKeyDown={(e) => e.key === 'Enter' && complete && !locked && submit()}
+                    className="w-20 bg-transparent px-3 py-2 font-bold outline-none"
+                    placeholder="0"
+                  />
+                  <span className="pr-3 font-bold text-slate-400">g</span>
+                </span>
+              </div>
             </div>
-            <label className="block">
-              <span className="mb-1 block text-sm font-bold text-slate-600">How many grams?</span>
-              <span className="flex items-center gap-2">
-                <input
-                  inputMode="decimal"
-                  disabled={locked}
-                  value={grams[i]}
-                  onChange={(e) => setGrams((gs) => gs.map((x, j) => (j === i ? e.target.value : x)))}
-                  onKeyDown={(e) => e.key === 'Enter' && complete && !locked && submit()}
-                  className="w-28 rounded-xl border-2 border-slate-300 px-3 py-2 font-bold outline-none focus:border-sky-400"
-                  placeholder="0"
-                />
-                <span className="font-bold text-slate-500">grams</span>
-              </span>
-            </label>
-          </Card>
-        ))}
+          )
+        })}
+
+        <MacroTotals macros={logged} />
       </div>
-      <Card className="mt-4 grid grid-cols-4 gap-2 p-4 text-center">
-        <Macro label="kcal" value={logged.kcal} />
-        <Macro label="Protein" value={logged.protein} unit="g" />
-        <Macro label="Carbs" value={logged.carbs} unit="g" />
-        <Macro label="Fat" value={logged.fat} unit="g" />
-      </Card>
+
       {!locked && (
         <div className="pt-6 pb-40">
           <Button className="w-full" disabled={!complete} onClick={submit}>
@@ -537,14 +586,33 @@ function RadioDot({ checked }: { checked: boolean }) {
   )
 }
 
-function Macro({ label, value, unit = '' }: { label: string; value: number; unit?: string }) {
+const MACRO_STYLE = [
+  { key: 'protein', label: 'Protein', kcalPerG: 4, bar: 'bg-rose-500', text: 'text-rose-600' },
+  { key: 'carbs', label: 'Carbs', kcalPerG: 4, bar: 'bg-amber-500', text: 'text-amber-600' },
+  { key: 'fat', label: 'Fat', kcalPerG: 9, bar: 'bg-sky-500', text: 'text-sky-600' },
+] as const
+
+/** Diary footer: grams of each macro and a bar showing their share of the calories. */
+function MacroTotals({ macros }: { macros: Macros }) {
+  const kcal = MACRO_STYLE.map((m) => macros[m.key] * m.kcalPerG)
+  const total = kcal.reduce((a, b) => a + b, 0)
   return (
-    <div>
-      <div className="text-lg font-extrabold">
-        {Math.round(value)}
-        {unit}
+    <div className="rounded-3xl border-2 border-slate-200 bg-white px-4 py-3">
+      <div className="text-xs font-extrabold uppercase tracking-wide text-slate-400">Meal totals</div>
+      <div className="mt-2 flex h-2.5 overflow-hidden rounded-full bg-slate-200">
+        {total > 0 && MACRO_STYLE.map((m, i) => <div key={m.key} className={m.bar} style={{ width: `${(kcal[i] / total) * 100}%` }} />)}
       </div>
-      <div className="text-xs font-bold uppercase text-slate-400">{label}</div>
+      <div className="mt-2 grid grid-cols-3 gap-2">
+        {MACRO_STYLE.map((m, i) => (
+          <div key={m.key}>
+            <div className={`text-xs font-extrabold ${m.text}`}>{m.label}</div>
+            <div className="font-extrabold">
+              {Math.round(macros[m.key])} g
+              {total > 0 && <span className="ml-1 text-xs font-bold text-slate-400">{Math.round((kcal[i] / total) * 100)}%</span>}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

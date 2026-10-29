@@ -270,6 +270,7 @@ export const CORE_LESSONS: Lesson[] = [
         id: 'log-lunch',
         image: 'lunch-plate',
         prompt: 'Log this lunch.',
+        meal: 'Lunch',
         items: [
           { description: '150 g chicken breast, weighed after cooking', foodId: 'chicken_cooked', grams: 150, choices: ['chicken_raw', 'chicken_cooked'] },
           { description: '200 g white rice, weighed after cooking', foodId: 'rice_cooked', grams: 200, choices: ['rice_raw', 'rice_cooked'] },
@@ -283,6 +284,7 @@ export const CORE_LESSONS: Lesson[] = [
         id: 'log-breakfast',
         image: 'breakfast-bowl',
         prompt: 'Log this breakfast.',
+        meal: 'Breakfast',
         items: [
           { description: '40 g rolled oats, weighed dry before cooking', foodId: 'oats_dry', grams: 40, choices: ['oats_cooked', 'oats_dry'] },
           { description: '250 g whole milk', foodId: 'milk_whole', grams: 250, choices: ['milk_whole', 'milk_skim'] },

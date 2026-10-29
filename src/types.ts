@@ -55,6 +55,8 @@ export interface LogQuestion {
   prompt: string
   /** Optional picture shown above the prompt. */
   image?: IllustrationId
+  /** Meal name shown in the food diary header, e.g. "Lunch". */
+  meal: string
   items: MealItem[]
   explain: string
 }
