@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
+import { Calculator, CalculatorIcon } from '../components/Calculator'
 import { Button, Card, ConfirmDialog, Mascot, ProgressBar, Screen, TextSizeButton } from '../components/ui'
 import { FOODS, foodEmoji } from '../content/foods'
 import { Illustration } from '../content/illustrations'
@@ -48,6 +49,8 @@ export function LessonPlayer({ lesson, replay = false, onExit, onComplete }: Pro
   const [turn, setTurn] = useState(0)
   const [missed, setMissed] = useState<number[]>([])
   const [confirmQuit, setConfirmQuit] = useState(false)
+  const [calcOpen, setCalcOpen] = useState(false)
+  const [calcOpens, setCalcOpens] = useState(0)
   const attemptedOnce = useRef<Set<number>>(new Set())
 
   const inCards = cardIndex < lesson.cards.length
@@ -103,6 +106,7 @@ export function LessonPlayer({ lesson, replay = false, onExit, onComplete }: Pro
         xpEarned,
         durationMs: Date.now() - startedAt.current,
         completedAt: new Date().toISOString(),
+        calculatorOpens: calcOpens,
       },
       logTasks,
     )
@@ -161,6 +165,19 @@ export function LessonPlayer({ lesson, replay = false, onExit, onComplete }: Pro
         </button>
         <ProgressBar value={progress} />
         {combo >= 2 && <span className="whitespace-nowrap text-sm font-extrabold text-orange-500">🔥 {combo} in a row</span>}
+        <button
+          type="button"
+          onClick={() => {
+            if (!calcOpen) setCalcOpens((n) => n + 1)
+            setCalcOpen(!calcOpen)
+          }}
+          className={`shrink-0 rounded-lg p-0.5 transition ${calcOpen ? 'bg-lime-100 opacity-100' : 'opacity-60 hover:opacity-100'}`}
+          aria-label={calcOpen ? 'Close calculator' : 'Open calculator'}
+          aria-pressed={calcOpen}
+          title="Calculator"
+        >
+          <CalculatorIcon />
+        </button>
         <TextSizeButton />
         <MuteButton />
       </div>
@@ -195,6 +212,7 @@ export function LessonPlayer({ lesson, replay = false, onExit, onComplete }: Pro
       )}
 
       {feedback && <FeedbackBar feedback={feedback} onNext={next} />}
+      {calcOpen && <Calculator onClose={() => setCalcOpen(false)} />}
       {confirmQuit && (
         <ConfirmDialog
           title="Quit this lesson?"

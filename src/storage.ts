@@ -96,13 +96,14 @@ export function sessionsToCsv(sessions: SessionRecord[]): string {
   const satIds = SATISFACTION_ITEMS.map((i) => i.id)
   const header = [
     'participant_code', 'started_at', 'finished_at', 'duration_min', 'experience', 'goal', 'xp',
-    'preview', 'lessons_completed', 'ended_early', 'first_try_correct', 'questions_total', 'log_accuracy_mean_pct',
+    'preview', 'lessons_completed', 'ended_early', 'first_try_correct', 'questions_total', 'calculator_opens', 'log_accuracy_mean_pct',
     ...skillIds,
     ...satIds, 'nps', 'nps_reason', 'comments',
   ]
   const rows = sessions.map((s) => {
     const first = s.lessons.reduce((a, l) => a + l.firstTryCorrect, 0)
     const total = s.lessons.reduce((a, l) => a + l.questionCount, 0)
+    const calc = s.lessons.reduce((a, l) => a + (l.calculatorOpens ?? 0), 0)
     const acc = s.logTasks.length
       ? (s.logTasks.reduce((a, t) => a + t.accuracyPct, 0) / s.logTasks.length).toFixed(1)
       : ''
@@ -111,7 +112,7 @@ export function sessionsToCsv(sessions: SessionRecord[]): string {
       : ''
     return [
       s.participantCode, s.startedAt, s.finishedAt, dur, s.experience, s.goal, s.xp,
-      s.preview ? 1 : 0, s.lessons.length, s.endedEarly ? 1 : 0, first, total, acc,
+      s.preview ? 1 : 0, s.lessons.length, s.endedEarly ? 1 : 0, first, total, calc, acc,
       ...skillIds.map((id) => s.survey?.ratings?.[id] ?? s.survey?.retro?.[id]?.after),
       ...satIds.map((id) => s.survey?.satisfaction[id]),
       s.survey?.nps, s.survey?.npsReason, s.survey?.comments,

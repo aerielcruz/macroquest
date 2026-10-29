@@ -81,6 +81,8 @@ export interface LessonResult {
   xpEarned: number
   durationMs: number
   completedAt: string
+  /** Times the calculator was opened during the lesson. */
+  calculatorOpens?: number
 }
 
 export interface LogTaskResult {
