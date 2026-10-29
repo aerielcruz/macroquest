@@ -54,6 +54,10 @@ export function markTourSeen(name: string) {
   write(TOUR_PREFIX + name, true)
 }
 
+export function resetTour(name: string) {
+  write(TOUR_PREFIX + name, false)
+}
+
 function clearTours() {
   try {
     Object.keys(localStorage)
@@ -118,7 +122,7 @@ export function sessionsToCsv(sessions: SessionRecord[]): string {
   const satIds = SATISFACTION_ITEMS.map((i) => i.id)
   const header = [
     'participant_code', 'started_at', 'finished_at', 'duration_min', 'experience', 'goal', 'xp',
-    'preview', 'lessons_completed', 'ended_early', 'first_try_correct', 'questions_total', 'calculator_opens', 'log_accuracy_mean_pct',
+    'preview', 'restarted', 'lessons_completed', 'ended_early', 'first_try_correct', 'questions_total', 'calculator_opens', 'log_accuracy_mean_pct',
     ...skillIds,
     ...satIds, 'nps', 'nps_reason', 'comments',
   ]
@@ -134,7 +138,7 @@ export function sessionsToCsv(sessions: SessionRecord[]): string {
       : ''
     return [
       s.participantCode, s.startedAt, s.finishedAt, dur, s.experience, s.goal, s.xp,
-      s.preview ? 1 : 0, s.lessons.length, s.endedEarly ? 1 : 0, first, total, calc, acc,
+      s.preview ? 1 : 0, s.restarted ? 1 : 0, s.lessons.length, s.endedEarly ? 1 : 0, first, total, calc, acc,
       ...skillIds.map((id) => s.survey?.ratings?.[id] ?? s.survey?.retro?.[id]?.after),
       ...satIds.map((id) => s.survey?.satisfaction[id]),
       s.survey?.nps, s.survey?.npsReason, s.survey?.comments,

@@ -1,8 +1,10 @@
 import { useState, type ReactNode } from 'react'
-import { Button, Card, ConfirmDialog, Mascot, ProgressBar, Screen, TextSizeButton, XpBadge } from '../components/ui'
+import { SettingsMenu } from '../components/SettingsMenu'
+import { Button, Card, ConfirmDialog, Mascot, ProgressBar, Screen, XpBadge } from '../components/ui'
 import { GOAL_LABELS } from '../content/lessons'
 import { Tour, type TourStep } from '../components/Tour'
 import { setPreviewMode, usePreviewMode } from '../prefs'
+import { resetTour } from '../storage'
 import { play } from '../sound'
 import type { Goal, Lesson } from '../types'
 
@@ -17,20 +19,22 @@ interface Props {
   onFinishEarly: () => void
   endedEarly: boolean
   participantCode: string
+  /** Abandons this session and goes back to the welcome screen. */
+  onStartOver: () => void
   account?: ReactNode
 }
 
 const TOUR: TourStep[] = [
   { target: 'current-lesson', text: 'Start here! Tap the glowing lesson to begin. New lessons unlock as you finish each one.' },
   { target: 'survey', text: 'Once you finish Unit 1, you can take the short survey from here.' },
-  { target: 'text-size', text: 'Text too small? Tap AA to make everything bigger.' },
+  { target: 'settings', text: 'Settings: make the text bigger, turn sounds off, or start over.' },
   { target: 'participant-code', text: 'This is your participant code. Keep it if you might want your answers removed later.' },
 ]
 
 // Zig-zag offsets give the path its Duolingo-style winding look.
 const OFFSETS = ['translate-x-0', 'translate-x-12', 'translate-x-16', 'translate-x-12', 'translate-x-0', '-translate-x-12', '-translate-x-16', '-translate-x-12']
 
-export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onFinishEarly, endedEarly, participantCode, account }: Props) {
+export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onFinishEarly, endedEarly, participantCode, onStartOver, account }: Props) {
   const nextIndex = lessons.findIndex((l) => !completed.has(l.id))
   const allDone = nextIndex === -1
   const coreCount = lessons.filter((l) => l.track === 'core').length
@@ -38,6 +42,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
   const coreDone = coreCompleted === coreCount
   const [confirmEarly, setConfirmEarly] = useState(false)
   const preview = usePreviewMode()
+  const [tourRun, setTourRun] = useState(0)
   // Before every lesson is done, the survey goes through the "Finish early?" check.
   const surveyReady = allDone || endedEarly || preview
 
@@ -51,8 +56,15 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
           </span>
           <div className="flex items-center gap-2 sm:gap-3">
             <XpBadge xp={xp} />
-            <TextSizeButton />
             {account}
+            <SettingsMenu
+              progressSummary={`${completed.size} ${completed.size === 1 ? 'lesson' : 'lessons'}, ${xp} XP`}
+              onShowTour={() => {
+                resetTour('path')
+                setTourRun((n) => n + 1)
+              }}
+              onStartOver={onStartOver}
+            />
           </div>
         </div>
         <div className="mt-2 flex items-center gap-3 border-slate-200 pt-2">
@@ -161,7 +173,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
         </Card>
       )}
 
-      <Tour name="path" steps={TOUR} />
+      <Tour key={tourRun} name="path" steps={TOUR} />
 
       {confirmEarly && (
         <ConfirmDialog

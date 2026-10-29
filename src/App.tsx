@@ -98,6 +98,22 @@ export default function App() {
     setView({ name: 'welcome' })
   }, [])
 
+  /** Leaves the current session (kept, but flagged as restarted) and goes back to the welcome screen. */
+  function startOver() {
+    if (session) {
+      const abandoned = { ...session, restarted: true }
+      saveSession(abandoned)
+      if (USE_SERVER) {
+        api.putStudy(abandoned).catch(() => {})
+        // Otherwise signing in would bring the old progress straight back.
+        if (user) api.deleteProgress().catch(() => {})
+      }
+    }
+    clearCurrent()
+    setSession(null)
+    setView({ name: 'welcome' })
+  }
+
   const lessons = useMemo(() => (session?.goal ? lessonsForGoal(session.goal) : []), [session?.goal])
   const completed = useMemo(() => new Set(session?.lessons.map((l) => l.lessonId)), [session?.lessons])
 
@@ -139,6 +155,7 @@ export default function App() {
           xp={session.xp}
           goal={session.goal}
           participantCode={session.participantCode}
+          onStartOver={startOver}
           account={account}
           onOpen={(id) => setView({ name: 'lesson', id })}
           onSurvey={() => setView({ name: 'survey' })}

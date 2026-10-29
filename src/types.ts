@@ -130,4 +130,6 @@ export interface SessionRecord {
   endedEarly?: boolean
   /** Used by a researcher in preview mode, not a real participant. */
   preview?: boolean
+  /** The participant chose "Start over" and left this session for a fresh one. */
+  restarted?: boolean
 }

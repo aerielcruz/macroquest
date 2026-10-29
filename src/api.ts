@@ -37,6 +37,7 @@ export const api = {
 
   getProgress: () => call<{ session: SessionRecord | null }>('/progress'),
   putProgress: (session: SessionRecord) => call<{ ok: true }>('/progress', { method: 'PUT', body: json({ session }) }),
+  deleteProgress: () => call<{ ok: true }>('/progress', { method: 'DELETE' }),
 
   /** Anonymous study record, saved for every participant. */
   putStudy: (session: SessionRecord) =>
