@@ -133,6 +133,7 @@ Item wording is in `src/content/survey.ts`. Older records from the earlier befor
 | Practice food database (per 100 g, USDA FoodData Central) and food icons | `src/content/foods.ts` |
 | Survey items and NPS wording | `src/content/survey.ts` |
 | Consent and welcome text | `src/screens/Welcome.tsx` |
+| "Learn more about this study" text (keep in line with the consent text) | `src/components/AboutStudy.tsx` |
 | XP values and log-accuracy scoring | `src/scoring.ts` |
 | Sound effects and vibration patterns | `src/sound.ts` |
 | First-time tour steps | `TOUR` at the top of `src/screens/LessonPath.tsx` and `src/screens/LessonPlayer.tsx` |

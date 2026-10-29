@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { AboutStudy } from '../components/AboutStudy'
 import { Button, Card, Mascot, Screen } from '../components/ui'
 import { USE_SERVER } from '../api'
 import { EXPERIENCE_OPTIONS } from '../content/survey'
@@ -12,6 +13,7 @@ interface Props {
 
 export function Welcome({ onStart, signIn }: Props) {
   const [step, setStep] = useState<'intro' | 'consent' | 'experience'>('intro')
+  const [aboutOpen, setAboutOpen] = useState(false)
   const [adult, setAdult] = useState(false)
   const [readInfo, setReadInfo] = useState(false)
   const [experience, setExperience] = useState<Experience | null>(null)
@@ -28,6 +30,9 @@ export function Welcome({ onStart, signIn }: Props) {
           <Button className="w-full max-w-xs" onClick={() => setStep('consent')}>
             Get started
           </Button>
+          <button type="button" onClick={() => setAboutOpen(true)} className="text-sm font-extrabold text-sky-600 hover:text-sky-700 hover:underline">
+            Learn more about this study
+          </button>
           {signIn && (
             <div className="mt-4 space-y-2">
               <p className="text-sm font-bold text-slate-500">Already started on another device?</p>
@@ -35,6 +40,7 @@ export function Welcome({ onStart, signIn }: Props) {
             </div>
           )}
         </div>
+        {aboutOpen && <AboutStudy onClose={() => setAboutOpen(false)} />}
       </Screen>
     )
   }
@@ -46,26 +52,28 @@ export function Welcome({ onStart, signIn }: Props) {
         <h1 className="mb-4 text-2xl font-extrabold">About this study</h1>
         <Card className="space-y-3 text-slate-600">
           <p>
-            This app is part of a COMP903 research project on teaching calorie and macronutrient tracking. You will
-            complete a set of short lessons (about 10 to 15 minutes), then answer one short survey.
+            This app is part of a research project by Aeriel Cruz, conducted as part of a Master of Information Technology
+            specialisation in Software Development course. The project explores how gamified lessons can help people understand calorie
+            and macronutrient tracking.
           </p>
           <p>
-            Taking part is voluntary and anonymous. Your survey answers are not linked to your name or email. You can stop at any time by
-            closing the page. You will see a short participant code on the lesson screen that you can quote if you want your
-            answers withdrawn.
+            You will complete a set of short lessons (approximately 10–15 minutes in total), followed by a short survey.
           </p>
           <p>
-            If thinking about food or tracking ever feels stressful, please stop. You can talk to your GP, or call or text 1737 any
-            time for free support.
+            Taking part is voluntary and anonymous. We will not ask for your name or email address. You can stop participating at
+            any time by closing the page. A participant code will be displayed on the lesson screen, which you can use if you wish
+            to request the withdrawal of your answers.
           </p>
           <p>
-            Your progress is saved in this browser.
-            {USE_SERVER &&
-              ' You can optionally sign in with Google to save it to an account; your survey answers are stored separately and never linked to your name or email.'}
+            If thinking about food or tracking feels stressful, you can stop at any time. You can also talk to your doctor or GP if you need support.
           </p>
           <p>
-            The app teaches flexible, goal-based tracking. It never rewards eating less, and your own food intake is not
-            recorded.
+            Your progress is saved in your browser
+            {USE_SERVER ? ', and your survey responses are stored anonymously in the research database.' : '.'}
+          </p>
+          <p>
+            The app teaches flexible, goal-based tracking. It does not reward eating less, and it does not record your personal
+            food intake.
           </p>
         </Card>
 
@@ -133,9 +141,8 @@ export function Choice({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-2xl border-2 border-b-4 px-4 py-3 text-left font-bold transition ${block ? 'w-full' : 'flex-1 text-center'} ${
-        selected ? 'border-sky-400 bg-sky-50 text-sky-700' : 'border-slate-200 bg-white hover:bg-slate-50'
-      }`}
+      className={`rounded-2xl border-2 border-b-4 px-4 py-3 text-left font-bold transition ${block ? 'w-full' : 'flex-1 text-center'} ${selected ? 'border-sky-400 bg-sky-50 text-sky-700' : 'border-slate-200 bg-white hover:bg-slate-50'
+        }`}
     >
       {children}
     </button>

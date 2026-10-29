@@ -8,12 +8,13 @@ import { ConfirmDialog } from './ui'
 interface Props {
   /** Shown in the "Start over?" warning so people know what they would lose. */
   progressSummary: string
+  onAbout: () => void
   onShowTour: () => void
   onStartOver: () => void
 }
 
 /** Gear button in the top right of the lesson map, opening a small settings menu. */
-export function SettingsMenu({ progressSummary, onShowTour, onStartOver }: Props) {
+export function SettingsMenu({ progressSummary, onAbout, onShowTour, onStartOver }: Props) {
   const [open, setOpen] = useState(false)
   const [confirmReset, setConfirmReset] = useState(false)
   const root = useRef<HTMLDivElement>(null)
@@ -46,6 +47,10 @@ export function SettingsMenu({ progressSummary, onShowTour, onStartOver }: Props
       {open && (
         <Menu
           onClose={() => setOpen(false)}
+          onAbout={() => {
+            setOpen(false)
+            onAbout()
+          }}
           onShowTour={() => {
             setOpen(false)
             onShowTour()
@@ -80,7 +85,17 @@ export function SettingsMenu({ progressSummary, onShowTour, onStartOver }: Props
   )
 }
 
-function Menu({ onClose, onShowTour, onStartOver }: { onClose: () => void; onShowTour: () => void; onStartOver: () => void }) {
+function Menu({
+  onClose,
+  onAbout,
+  onShowTour,
+  onStartOver,
+}: {
+  onClose: () => void
+  onAbout: () => void
+  onShowTour: () => void
+  onStartOver: () => void
+}) {
   const large = useLargeText()
   const muted = useMuted()
 
@@ -108,6 +123,7 @@ function Menu({ onClose, onShowTour, onStartOver }: { onClose: () => void; onSho
             if (on) play('tap')
           }}
         />
+        <MenuItem emoji="ℹ️" label="About this study" onClick={onAbout} />
         <MenuItem emoji="🧭" label="Show the quick tour again" onClick={onShowTour} />
         <div className="border-t-2 border-slate-100" />
         <MenuItem emoji="↺" label="Start over" onClick={onStartOver} danger />

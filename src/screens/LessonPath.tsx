@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { AboutStudy } from '../components/AboutStudy'
 import { SettingsMenu } from '../components/SettingsMenu'
 import { Button, Card, ConfirmDialog, Mascot, ProgressBar, Screen, XpBadge } from '../components/ui'
 import { GOAL_LABELS } from '../content/lessons'
@@ -43,6 +44,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
   const [confirmEarly, setConfirmEarly] = useState(false)
   const preview = usePreviewMode()
   const [tourRun, setTourRun] = useState(0)
+  const [aboutOpen, setAboutOpen] = useState(false)
   // Before every lesson is done, the survey goes through the "Finish early?" check.
   const surveyReady = allDone || endedEarly || preview
 
@@ -59,6 +61,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
             {account}
             <SettingsMenu
               progressSummary={`${completed.size} ${completed.size === 1 ? 'lesson' : 'lessons'}, ${xp} XP`}
+              onAbout={() => setAboutOpen(true)}
               onShowTour={() => {
                 resetTour('path')
                 setTourRun((n) => n + 1)
@@ -174,6 +177,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
       )}
 
       <Tour key={tourRun} name="path" steps={TOUR} />
+      {aboutOpen && <AboutStudy onClose={() => setAboutOpen(false)} />}
 
       {confirmEarly && (
         <ConfirmDialog
