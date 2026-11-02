@@ -56,7 +56,7 @@ In browser-only mode, `npm run build` makes a static site in `dist/` that you ca
 
 ### Deploying on Render (free)
 
-`render.yaml` is a Render Blueprint that creates two free services: `macroquest-api` (Web Service running the Express API) and `macroquest` (Static Site with the built app). In Render, choose **New > Blueprint**, pick this repository, and fill in `MONGODB_URI` and `ADMIN_KEY` when asked. `SESSION_SECRET` is generated, and `CORS_ORIGIN` / `VITE_API_URL` link the two services automatically. In MongoDB Atlas, add `0.0.0.0/0` under **Network Access**, because Render's free tier has no fixed IP.
+`render.yaml` is a Render Blueprint that creates two free services: `macroquest-api` (Web Service running the Express API) and `macroquest` (Static Site with the built app). In Render, choose **New > Blueprint**, pick this repository, and fill in `MONGODB_URI` and `ADMIN_KEY` when asked. `SESSION_SECRET` is generated and `VITE_API_URL` points the app at the API automatically. The app is served under `/macroquest/` (for example `https://gainskage.com/macroquest/`), and the site root redirects there. `CORS_ORIGIN` in `render.yaml` lists every domain the app is opened from, so add any new custom domain there. In MongoDB Atlas, add `0.0.0.0/0` under **Network Access**, because Render's free tier has no fixed IP.
 
 The free API sleeps after 15 idle minutes and takes up to a minute to wake. The app pings `/api/health` when it opens and every 10 minutes while it is open, and retries any save that fails while the server wakes, so nothing is lost. Open the app a minute before a session to be safe.
 
