@@ -81,6 +81,8 @@ export interface SurveyDraft {
   nps: number | null
   npsReason: string
   comments: string
+  ageBand?: string
+  gender?: string
 }
 
 const draftKey = (sessionId: string) => `macroquest.surveyDraft.${sessionId}`
@@ -124,7 +126,7 @@ export function sessionsToCsv(sessions: SessionRecord[]): string {
     'participant_code', 'started_at', 'finished_at', 'duration_min', 'experience', 'goal', 'xp',
     'preview', 'restarted', 'lessons_completed', 'ended_early', 'first_try_correct', 'questions_total', 'calculator_opens', 'log_accuracy_mean_pct',
     ...skillIds,
-    ...satIds, 'nps', 'nps_reason', 'comments',
+    ...satIds, 'nps', 'nps_reason', 'comments', 'age_band', 'gender',
   ]
   const rows = sessions.map((s) => {
     const first = s.lessons.reduce((a, l) => a + l.firstTryCorrect, 0)
@@ -141,7 +143,7 @@ export function sessionsToCsv(sessions: SessionRecord[]): string {
       s.preview ? 1 : 0, s.restarted ? 1 : 0, s.lessons.length, s.endedEarly ? 1 : 0, first, total, calc, acc,
       ...skillIds.map((id) => s.survey?.ratings?.[id] ?? s.survey?.retro?.[id]?.after),
       ...satIds.map((id) => s.survey?.satisfaction[id]),
-      s.survey?.nps, s.survey?.npsReason, s.survey?.comments,
+      s.survey?.nps, s.survey?.npsReason, s.survey?.comments, s.survey?.ageBand, s.survey?.gender,
     ].map(csvCell).join(',')
   })
   return [header.join(','), ...rows].join('\n')

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Button, Card, Mascot, ProgressBar, Screen } from '../components/ui'
-import { LIKERT_LABELS, NPS_QUESTION, SATISFACTION_ITEMS, SKILL_ITEMS } from '../content/survey'
+import { AGE_OPTIONS, GENDER_OPTIONS, LIKERT_LABELS, NPS_QUESTION, SATISFACTION_ITEMS, SKILL_ITEMS } from '../content/survey'
 import { clearSurveyDraft, loadSurveyDraft, saveSurveyDraft } from '../storage'
 import type { SurveyResponse } from '../types'
 
@@ -23,10 +23,12 @@ export function Survey({
   const [nps, setNps] = useState<number | null>(draft?.nps ?? null)
   const [reason, setReason] = useState(draft?.npsReason ?? '')
   const [comments, setComments] = useState(draft?.comments ?? '')
+  const [ageBand, setAgeBand] = useState(draft?.ageBand ?? '')
+  const [gender, setGender] = useState(draft?.gender ?? '')
 
   useEffect(() => {
-    saveSurveyDraft(sessionId, { page, ratings, satisfaction: sat, nps, npsReason: reason, comments })
-  }, [sessionId, page, ratings, sat, nps, reason, comments])
+    saveSurveyDraft(sessionId, { page, ratings, satisfaction: sat, nps, npsReason: reason, comments, ageBand, gender })
+  }, [sessionId, page, ratings, sat, nps, reason, comments, ageBand, gender])
 
   const ratingsDone = SKILL_IDS.every((id) => ratings[id])
   const satDone = SATISFACTION_ITEMS.every((i) => sat[i.id])
@@ -143,6 +145,11 @@ export function Survey({
               className="w-full rounded-2xl border-2 border-slate-300 bg-white p-3 outline-none focus:border-sky-400"
             />
           </label>
+          <Card className="mb-6 space-y-4 p-4">
+            <p className="text-sm font-bold text-slate-500">About you (optional, helps describe who took part)</p>
+            <OptionRow label="Your age" options={AGE_OPTIONS} value={ageBand} onChange={setAgeBand} />
+            <OptionRow label="Your gender" options={GENDER_OPTIONS} value={gender} onChange={setGender} />
+          </Card>
           <div className="flex gap-3">
             <Button variant="secondary" onClick={() => go(1)}>
               Back
@@ -158,6 +165,8 @@ export function Survey({
                   nps,
                   npsReason: reason.trim(),
                   comments: comments.trim(),
+                  ageBand,
+                  gender,
                   submittedAt: new Date().toISOString(),
                 })
                 clearSurveyDraft(sessionId)
@@ -205,6 +214,38 @@ function LikertRow({ value, onChange }: { value?: number; onChange: (v: number) 
             </button>
           )
         })}
+      </div>
+    </div>
+  )
+}
+
+function OptionRow({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string
+  options: readonly string[]
+  value: string
+  onChange: (v: string) => void
+}) {
+  return (
+    <div>
+      <span className="mb-2 block font-bold">{label}</span>
+      <div className="flex flex-wrap gap-2">
+        {options.map((o) => (
+          <button
+            key={o}
+            type="button"
+            onClick={() => onChange(value === o ? '' : o)}
+            className={`rounded-xl border-2 border-b-4 px-3 py-1.5 text-sm font-bold transition ${
+              value === o ? 'border-sky-400 bg-sky-100 text-sky-700' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            {o}
+          </button>
+        ))}
       </div>
     </div>
   )

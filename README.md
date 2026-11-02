@@ -125,8 +125,10 @@ The gear at the top right of the lesson map has: larger text, sound and vibratio
 | `calculator_opens` | Times the calculator was opened, across all lessons |
 | `log_accuracy_mean_pct` | Mean practice-logging accuracy (100% minus the percentage calorie error) |
 | `k1`-`k4`, `c1`-`c3` | Self-rated knowledge (H1) and logging confidence (H2), 1-5 |
+| `k5`, `c4` | Perceived improvement from the app in knowledge (H1) and logging confidence (H2), 1-5 |
 | `s1`-`s6` | Satisfaction and engagement (H3), 1-5 |
 | `nps`, `nps_reason`, `comments` | Likelihood to recommend (0-10), reason, optional comments |
+| `age_band`, `gender` | Optional demographics, blank if skipped |
 
 Item wording is in `src/content/survey.ts`. Older records from the earlier before/after survey export their "after" rating in the `k`/`c` columns.
 

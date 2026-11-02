@@ -111,6 +111,9 @@ export interface SurveyResponse {
   nps: number
   npsReason: string
   comments: string
+  /** Optional demographics; empty string when skipped. */
+  ageBand?: string
+  gender?: string
   submittedAt: string
 }
 

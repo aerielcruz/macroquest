@@ -6,7 +6,10 @@ export interface SurveyItem {
   text: string
 }
 
-/** Self-rated skills after using the app, 1-5 agreement. H1 = knowledge, H2 = logging confidence. */
+/**
+ * Self-rated skills after using the app, 1-5 agreement. H1 = knowledge, H2 = logging confidence.
+ * k1-k4 and c1-c3 rate the skill now; k5 and c4 ask directly whether the app improved it.
+ */
 export const SKILL_ITEMS: { hypothesis: 'H1' | 'H2'; heading: string; items: SurveyItem[] }[] = [
   {
     hypothesis: 'H1',
@@ -16,6 +19,7 @@ export const SKILL_ITEMS: { hypothesis: 'H1' | 'H2'; heading: string; items: Sur
       { id: 'k2', text: 'I can read a nutrition label to find the calories and macros in my portion.' },
       { id: 'k3', text: 'I know how to set calorie and macro targets for my goal.' },
       { id: 'k4', text: 'I understand why targets differ between bulking, cutting and maintaining.' },
+      { id: 'k5', text: 'Using the app improved my understanding of calorie and macro tracking.' },
     ],
   },
   {
@@ -25,6 +29,7 @@ export const SKILL_ITEMS: { hypothesis: 'H1' | 'H2'; heading: string; items: Sur
       { id: 'c1', text: 'I am confident I can weigh and log my food accurately.' },
       { id: 'c2', text: 'I am confident I can choose the correct entry in a food database.' },
       { id: 'c3', text: 'I am confident I can estimate portions when I cannot weigh my food.' },
+      { id: 'c4', text: 'Using the app made me more confident logging my food.' },
     ],
   },
 ]
@@ -50,3 +55,7 @@ export const EXPERIENCE_OPTIONS = [
   { value: 'under6m', label: 'I have tracked regularly for less than 6 months' },
   { value: 'over6m', label: 'I have tracked regularly for 6 months or more' },
 ] as const
+
+/** Optional demographics, asked at the end of the survey to describe the sample. */
+export const AGE_OPTIONS = ['18-24', '25-34', '35-44', '45-54', '55+', 'Prefer not to say'] as const
+export const GENDER_OPTIONS = ['Woman', 'Man', 'Non-binary', 'Another gender', 'Prefer not to say'] as const
