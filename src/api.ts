@@ -7,6 +7,14 @@ import type { SessionRecord } from './types'
  */
 export const USE_SERVER = import.meta.env.VITE_USE_SERVER === 'true'
 
+/**
+ * Where the API lives. Empty in development (Vite proxies /api to localhost:3001) and when
+ * the server also serves the built app. On Render the static site points this at the API
+ * service, e.g. https://macroquest-api.onrender.com (a bare host name is fine too).
+ */
+const RAW_API_URL = (import.meta.env.VITE_API_URL ?? '').trim().replace(/\/+$/, '')
+const API_BASE = RAW_API_URL && !/^https?:\/\//.test(RAW_API_URL) ? `https://${RAW_API_URL}` : RAW_API_URL
+
 export interface User {
   id: string
   email: string
@@ -15,8 +23,9 @@ export interface User {
 }
 
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const res = await fetch(`/api${path}`, {
-    credentials: 'same-origin',
+  const res = await fetch(`${API_BASE}/api${path}`, {
+    // The API is on another domain when deployed as a separate service.
+    credentials: API_BASE ? 'include' : 'same-origin',
     ...init,
     headers: { 'Content-Type': 'application/json', ...init.headers },
   })
@@ -30,6 +39,8 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
 const json = (body: unknown) => JSON.stringify(body)
 
 export const api = {
+  /** Cheap request that wakes the free Render instance if it is asleep. */
+  health: () => call<{ ok: true }>('/health'),
   config: () => call<{ googleClientId: string | null }>('/config'),
   me: () => call<{ user: User | null }>('/auth/me'),
   signInWithGoogle: (credential: string) => call<{ user: User }>('/auth/google', { method: 'POST', body: json({ credential }) }),

@@ -21,16 +21,17 @@ export async function verifyGoogleToken(credential: string, clientId: string) {
 
 export function setSessionCookie(res: Response, userId: string, secret: string) {
   const token = jwt.sign({ sub: userId }, secret, { expiresIn: '30d' })
-  res.cookie(COOKIE, token, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: MAX_AGE_MS,
-  })
+  res.cookie(COOKIE, token, { ...cookieOptions(), maxAge: MAX_AGE_MS })
+}
+
+/** In production the app and API are on different domains, so the cookie must be SameSite=None. */
+function cookieOptions() {
+  const prod = process.env.NODE_ENV === 'production'
+  return { httpOnly: true, sameSite: prod ? ('none' as const) : ('lax' as const), secure: prod }
 }
 
 export function clearSessionCookie(res: Response) {
-  res.clearCookie(COOKIE)
+  res.clearCookie(COOKIE, cookieOptions())
 }
 
 /** Sets req.userId when a valid session cookie is present. Never rejects. */
