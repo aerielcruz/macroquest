@@ -53,7 +53,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
       <header className="sticky top-0 z-10 -mx-4 mb-4 bg-slate-50/90 px-4 py-2 backdrop-blur">
         <div className="flex items-center justify-between gap-2">
           <span className="flex shrink-0 items-center gap-1.5 whitespace-nowrap font-extrabold text-lime-600">
-            <img src="/logo.svg" alt="" className="h-6 w-6" />
+            <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="" className="h-6 w-6" />
             MacroQuest
           </span>
           <div className="flex items-center gap-2 sm:gap-3">

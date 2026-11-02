@@ -23,17 +23,16 @@ services:
         sync: false # password for /#admin
       - key: SESSION_SECRET
         generateValue: true
+      # Every address the app is opened from (comma separated).
       - key: CORS_ORIGIN
-        fromService:
-          type: web
-          name: macroquest
-          property: host
+        value: gainskage.com,www.gainskage.com,macroquest.onrender.com
 
   # The React app, served as static files from Render's CDN.
   - type: web
     name: macroquest
     runtime: static
-    buildCommand: npm ci && npm run build
+    # The app lives at /macroquest (e.g. gainskage.com/macroquest), so build it into dist/macroquest.
+    buildCommand: npm ci && npm run build -- --base=/macroquest/ --outDir dist/macroquest --emptyOutDir
     staticPublishPath: ./dist
     pullRequestPreviewsEnabled: false
     headers:
@@ -41,10 +40,17 @@ services:
         name: X-Frame-Options
         value: SAMEORIGIN
     routes:
-      # The app uses hash routes (/#admin), but send any other path to the app too.
+      # gainskage.com and gainskage.com/macroquest both land on the app.
+      - type: redirect
+        source: /
+        destination: /macroquest/
+      - type: redirect
+        source: /macroquest
+        destination: /macroquest/
+      # The app uses hash routes (/macroquest/#admin); any other path under it loads the app too.
       - type: rewrite
-        source: /*
-        destination: /index.html
+        source: /macroquest/*
+        destination: /macroquest/index.html
     envVars:
       - key: NODE_VERSION
         value: "22"
