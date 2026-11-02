@@ -27,7 +27,8 @@ const CORS_ORIGINS = (process.env.CORS_ORIGIN ?? '')
   .split(',')
   .map((o) => o.trim().replace(/\/+$/, ''))
   .filter(Boolean)
-  .map((o) => (/^https?:\/\//.test(o) ? o : `https://${o}`))
+  // A bare Render service name such as "macroquest" means macroquest.onrender.com.
+  .map((o) => (/^https?:\/\//.test(o) ? o : `https://${o.includes('.') ? o : `${o}.onrender.com`}`))
 
 const app = express()
 app.set('trust proxy', 1)

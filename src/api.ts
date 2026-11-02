@@ -13,7 +13,12 @@ export const USE_SERVER = import.meta.env.VITE_USE_SERVER === 'true'
  * service, e.g. https://macroquest-api.onrender.com (a bare host name is fine too).
  */
 const RAW_API_URL = (import.meta.env.VITE_API_URL ?? '').trim().replace(/\/+$/, '')
-const API_BASE = RAW_API_URL && !/^https?:\/\//.test(RAW_API_URL) ? `https://${RAW_API_URL}` : RAW_API_URL
+// Render's Blueprint link gives a bare service name (e.g. "macroquest-api"); turn that into its public URL.
+function toUrl(v: string) {
+  if (!v || /^https?:\/\//.test(v)) return v
+  return `https://${v.includes('.') ? v : `${v}.onrender.com`}`
+}
+const API_BASE = toUrl(RAW_API_URL)
 
 export interface User {
   id: string
