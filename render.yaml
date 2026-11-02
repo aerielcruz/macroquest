@@ -31,8 +31,9 @@ services:
   - type: web
     name: macroquest
     runtime: static
-    # The app lives at /macroquest (e.g. gainskage.com/macroquest), so build it into dist/macroquest.
-    buildCommand: npm ci && npm run build -- --base=/macroquest/ --outDir dist/macroquest --emptyOutDir
+    # The app lives at /macroquest (e.g. gainskage.com/macroquest), so vite.config.ts builds it into dist/macroquest
+    # and writes dist/index.html, which redirects the site root there.
+    buildCommand: npm ci && npm run build
     staticPublishPath: ./dist
     pullRequestPreviewsEnabled: false
     headers:
