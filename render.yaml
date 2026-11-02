@@ -1,0 +1,57 @@
+# Render Blueprint: Dashboard > New > Blueprint > pick this repo.
+# Creates two free services: the API (Web Service) and the app (Static Site).
+services:
+  # Express + MongoDB API. Free instances sleep after 15 idle minutes; the app wakes it.
+  - type: web
+    name: macroquest-api
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false # paste your Atlas connection string when Render asks
+      - key: MONGODB_DB
+        value: macroquest
+      - key: ADMIN_KEY
+        sync: false # password for /#admin
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        fromService:
+          type: web
+          name: macroquest
+          property: host
+
+  # The React app, served as static files from Render's CDN.
+  - type: web
+    name: macroquest
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: false
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+    routes:
+      # The app uses hash routes (/#admin), but send any other path to the app too.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: VITE_USE_SERVER
+        value: "true"
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: macroquest-api
+          property: host

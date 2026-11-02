@@ -52,7 +52,13 @@ The back end in `server/` is optional. To turn it on:
 
 ### Hosting
 
-In browser-only mode, `npm run build` makes a static site in `dist/` that you can host on Vercel or Netlify. With the server on, `npm run build` then `npm start` serves the built app and the API from one Node process on `PORT`. On Render, use a Web Service with build command `npm install && npm run build`, start command `npm start`, and the same variables as `.env` in its Environment tab. Set `NODE_ENV=production` there so login cookies are HTTPS-only. In MongoDB Atlas, allow the host's IP under Network Access.
+In browser-only mode, `npm run build` makes a static site in `dist/` that you can host anywhere. With the server on, `npm run build` then `npm start` serves the built app and the API from one Node process on `PORT`.
+
+### Deploying on Render (free)
+
+`render.yaml` is a Render Blueprint that creates two free services: `macroquest-api` (Web Service running the Express API) and `macroquest` (Static Site with the built app). In Render, choose **New > Blueprint**, pick this repository, and fill in `MONGODB_URI` and `ADMIN_KEY` when asked. `SESSION_SECRET` is generated, and `CORS_ORIGIN` / `VITE_API_URL` link the two services automatically. In MongoDB Atlas, add `0.0.0.0/0` under **Network Access**, because Render's free tier has no fixed IP.
+
+The free API sleeps after 15 idle minutes and takes up to a minute to wake. The app pings `/api/health` when it opens and every 10 minutes while it is open, and retries any save that fails while the server wakes, so nothing is lost. Open the app a minute before a session to be safe.
 
 ## Storage and sign-in (when the server is on)
 

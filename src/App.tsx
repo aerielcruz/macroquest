@@ -50,6 +50,16 @@ export default function App() {
     api.me().then((r) => setUser(r.user)).catch(() => {})
   }, [])
 
+  // The free Render server sleeps after 15 idle minutes and takes up to a minute to wake.
+  // Ping it on load (above) and every 10 minutes while the app is open so saves stay fast.
+  useEffect(() => {
+    if (!USE_SERVER) return
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === 'visible') api.health().catch(() => {})
+    }, 10 * 60 * 1000)
+    return () => window.clearInterval(timer)
+  }, [])
+
   // When someone signs in, merge their saved progress with what is on this device.
   useEffect(() => {
     if (!user) return
@@ -70,11 +80,30 @@ export default function App() {
     if (!session) return
     saveSession(session)
     if (!USE_SERVER) return
-    const jobs = [api.putStudy(session)]
-    if (user) jobs.push(api.putProgress(session))
-    Promise.all(jobs)
-      .then(() => setSyncError(false))
-      .catch(() => setSyncError(true))
+    // Retry a failed save (for example while the server is waking up) unless a newer
+    // change has replaced this one, so the final survey answers are not lost.
+    const delays = [3, 10, 20, 30, 60, 120]
+    let cancelled = false
+    let timer: number | undefined
+    let attempt = 0
+    const push = () => {
+      const jobs = [api.putStudy(session)]
+      if (user) jobs.push(api.putProgress(session))
+      Promise.all(jobs)
+        .then(() => {
+          if (!cancelled) setSyncError(false)
+        })
+        .catch(() => {
+          if (cancelled) return
+          setSyncError(true)
+          if (attempt < delays.length) timer = window.setTimeout(push, delays[attempt++] * 1000)
+        })
+    }
+    push()
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
   }, [session, user])
 
   // Anything done in preview mode is test data, so tag the session before it is saved again.

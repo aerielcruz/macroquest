@@ -21,7 +21,31 @@ const PORT = Number(process.env.PORT) || 3001
 if (!MONGODB_URI) throw new Error('MONGODB_URI is missing. Copy .env.example to .env and fill it in.')
 if (!SESSION_SECRET) throw new Error('SESSION_SECRET is missing. Copy .env.example to .env and fill it in.')
 
+// Front-end origins allowed to call the API from another domain (the Render static site).
+// Comma separated; a bare host name such as macroquest.onrender.com is treated as https.
+const CORS_ORIGINS = (process.env.CORS_ORIGIN ?? '')
+  .split(',')
+  .map((o) => o.trim().replace(/\/+$/, ''))
+  .filter(Boolean)
+  .map((o) => (/^https?:\/\//.test(o) ? o : `https://${o}`))
+
 const app = express()
+app.set('trust proxy', 1)
+
+app.use((req, res, next) => {
+  const origin = req.get('origin')
+  if (origin && CORS_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin)
+    res.setHeader('Access-Control-Allow-Credentials', 'true')
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-admin-key')
+    res.setHeader('Access-Control-Max-Age', '86400')
+  }
+  res.setHeader('Vary', 'Origin')
+  if (req.method === 'OPTIONS') return void res.sendStatus(204)
+  next()
+})
+
 app.use(express.json({ limit: '200kb' }))
 app.use(cookieParser())
 app.use(readSession(SESSION_SECRET))
@@ -35,6 +59,11 @@ function isSessionRecord(v: unknown): v is SessionRecord {
 function fail(res: Response, status: number, error: string) {
   res.status(status).json({ error })
 }
+
+// Used by Render's health check and by the app to wake the free instance.
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true })
+})
 
 app.get('/api/config', (_req, res) => {
   res.json({ googleClientId: GOOGLE_CLIENT_ID || null })
