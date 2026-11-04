@@ -66,7 +66,7 @@ export function AboutStudy({ onClose }: { onClose: () => void }) {
 
           <Section emoji="🗺️" title="What you will do">
             About 10 to 15 minutes of lessons: 5 core lessons that everyone takes, then 2 for your goal (bulking, cutting or
-            maintaining). Then a short survey of about 3 minutes. Once you finish the core lessons you can choose to stop and go to
+            maintaining). Then a short survey of about 3 minutes. You can choose to stop at any point and go to
             the survey.
           </Section>
 

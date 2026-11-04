@@ -16,7 +16,7 @@ interface Props {
   goal: Goal
   onOpen: (lessonId: string) => void
   onSurvey: () => void
-  /** Ends the lessons now and goes to the survey. Offered once the core lessons are done. */
+  /** Ends the lessons now and goes to the survey. Available at any point. */
   onFinishEarly: () => void
   endedEarly: boolean
   participantCode: string
@@ -27,7 +27,7 @@ interface Props {
 
 const TOUR: TourStep[] = [
   { target: 'current-lesson', text: 'Start here! Tap the glowing lesson to begin. New lessons unlock as you finish each one.' },
-  { target: 'survey', text: 'Once you finish Unit 1, you can take the short survey from here.' },
+  { target: 'survey', text: 'You can take the short survey from here at any time, but finishing the lessons first helps the study most.' },
   { target: 'settings', text: 'Settings: make the text bigger, turn sounds off, or start over.' },
   { target: 'participant-code', text: 'This is your participant code. Keep it if you might want your answers removed later.' },
 ]
@@ -39,8 +39,6 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
   const nextIndex = lessons.findIndex((l) => !completed.has(l.id))
   const allDone = nextIndex === -1
   const coreCount = lessons.filter((l) => l.track === 'core').length
-  const coreCompleted = lessons.filter((l) => l.track === 'core' && completed.has(l.id)).length
-  const coreDone = coreCompleted === coreCount
   const [confirmEarly, setConfirmEarly] = useState(false)
   const preview = usePreviewMode()
   const [tourRun, setTourRun] = useState(0)
@@ -75,18 +73,13 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
             variant={surveyReady ? 'primary' : 'secondary'}
             size="sm"
             className="shrink-0 whitespace-nowrap"
-            disabled={!coreDone && !surveyReady}
             data-tour="survey"
             onClick={surveyReady ? onSurvey : () => setConfirmEarly(true)}
           >
-            {coreDone || surveyReady ? '📝' : '🔒'} Take the survey
+            📝 Take the survey
           </Button>
           <p className="text-xs font-bold text-slate-500">
-            {surveyReady
-              ? 'All set! It takes about 3 minutes.'
-              : coreDone
-                ? 'Ready when you are, but finishing every lesson helps our study most.'
-                : `Complete Unit 1 to take the survey (${coreCompleted} of ${coreCount} done).`}
+            {surveyReady ? 'All set! It takes about 3 minutes.' : 'Ready when you are, but finishing every lesson helps our study most.'}
           </p>
         </div>
       </header>
@@ -153,11 +146,11 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
         })}
       </div>
 
-      {coreDone && !allDone && !endedEarly && !preview && (
+      {!allDone && !endedEarly && !preview && (
         <Card className="mt-8 flex flex-col items-center gap-2 text-center">
           <h2 className="font-extrabold">Short on time?</h2>
           <p className="text-sm text-slate-500">
-            You have finished the core skills. You can stop here and go to the survey, but finishing every lesson helps our study most.
+            You can stop at any point and go to the survey, but finishing every lesson helps our study most.
           </p>
           <Button variant="secondary" className="mt-1 w-full" onClick={() => setConfirmEarly(true)}>
             Finish early

@@ -76,8 +76,7 @@ The free API sleeps after 15 idle minutes and takes up to a minute to wake. The 
 4. Lesson map. A short first-time tour points out where to start, the survey button, settings and the participant code. The participant code is shown from the start so anyone who stops part-way can still ask for their data to be withdrawn.
 5. Lessons: Unit 1 has 5 core lessons (energy balance, labels, weighing, portions, practice logging), then Unit 2 has 2 lessons for the chosen goal. Lessons unlock in order.
 6. Survey, from the button at the top of the lesson map:
-   - Locked until Unit 1 is finished ("Complete Unit 1 to take the survey").
-   - After Unit 1 and before the last lesson, it asks "Finish early?" first, and the session is flagged `ended_early`. Going back from the survey to keep learning clears that flag.
+   - Available at any time. Before the last lesson is finished, it asks "Finish early?" first, and the session is flagged `ended_early` (use `lessons_completed` to see how far they got). Going back from the survey to keep learning clears that flag.
    - Items: self-rated skills now (H1 knowledge, H2 logging confidence), satisfaction (H3), recommend 0-10 with a reason, optional comments.
 7. Thank-you screen with the participant code.
 
@@ -120,7 +119,7 @@ The gear at the top right of the lesson map has: larger text, sound and vibratio
 | `xp` | Total XP |
 | `preview` | 1 if used in preview mode (test data) |
 | `restarted` | 1 if the participant chose Start over and began a new session |
-| `lessons_completed`, `ended_early` | Lessons finished, and 1 if they chose Finish early after Unit 1 |
+| `lessons_completed`, `ended_early` | Lessons finished, and 1 if they chose Finish early (went to the survey before finishing every lesson) |
 | `first_try_correct`, `questions_total` | Questions right first time, out of all questions in completed lessons |
 | `calculator_opens` | Times the calculator was opened, across all lessons |
 | `log_accuracy_mean_pct` | Mean practice-logging accuracy (100% minus the percentage calorie error) |
