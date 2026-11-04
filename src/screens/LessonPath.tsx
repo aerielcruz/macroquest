@@ -70,7 +70,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
         </div>
         <div className="mt-2 flex items-center gap-3 border-slate-200 pt-2">
           <Button
-            variant={surveyReady ? 'primary' : 'secondary'}
+            variant="cta"
             size="sm"
             className="shrink-0 whitespace-nowrap"
             data-tour="survey"
@@ -163,7 +163,7 @@ export function LessonPath({ lessons, completed, xp, goal, onOpen, onSurvey, onF
           <Mascot mood="cheer" />
           <h2 className="text-xl font-extrabold">{allDone ? 'You finished every lesson!' : preview ? 'Preview the survey' : 'Thanks for taking part!'}</h2>
           <p className="text-slate-500">One last step: tell us what you thought. It takes about 3 minutes.</p>
-          <Button className="w-full" onClick={onSurvey}>
+          <Button variant="cta" className="w-full" onClick={onSurvey}>
             Take the survey
           </Button>
         </Card>

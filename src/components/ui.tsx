@@ -3,10 +3,12 @@ import { useHotkeys } from '../hotkeys'
 import { setLargeText, useLargeText } from '../prefs'
 import { XP_PER_LEVEL, levelFor } from '../scoring'
 
-type Variant = 'primary' | 'secondary' | 'danger' | 'ghost'
+type Variant = 'primary' | 'cta' | 'secondary' | 'danger' | 'ghost'
 
 const VARIANTS: Record<Variant, string> = {
   primary: 'bg-lime-500 text-white border-lime-700 hover:bg-lime-400',
+  // Yellow call to action (the survey); dark text because white on yellow is hard to read.
+  cta: 'bg-yellow-400 text-slate-900 border-yellow-600 hover:bg-yellow-300',
   secondary: 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50',
   danger: 'bg-rose-500 text-white border-rose-700 hover:bg-rose-400',
   ghost: 'bg-transparent text-slate-500 border-transparent hover:text-slate-700 shadow-none',
